@@ -8,10 +8,18 @@
   <figucaption>フォルダー</figucaption>
   <table>
     <tr>
+      <th>議事録</th>
+      <td>Hearing</td>
+    </tr>
+    <tr>
       <th>要求分析</th>
       <td>RequirementAnalysis</td>
     </tr>
-  </table>
+    <tr>
+      <th>設計</th>
+      <td>Design</td>
+    </tr>
+  </table>
 </figure>
 
 
