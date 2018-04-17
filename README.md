@@ -21,7 +21,12 @@
     </tr>
   </table>
 </figure>
+
 <p style="color:red;">*aaa*</p>
   
-
+<div>
+ 
+ <p>ここはdiv要素</p>
+ 
+</div>
 
