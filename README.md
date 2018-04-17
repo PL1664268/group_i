@@ -24,11 +24,8 @@
   </table>
 </figure>
 
-<p style="color:red;">*aaa*</p>
-  
-<div>
- 
- <p>ここはdiv要素</p>
- 
-</div>
+<ul>
+  <li>111<br>222</li>
+  <li>333<br>444</li>
+</ul>
 
