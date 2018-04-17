@@ -39,7 +39,8 @@
         <td>rgb(217,217,217)</td>
         <td>rgb(247,247,247)</td>
       </tr>
-    </table>
+    </table><br>
+    <img src="./image/image_01.png">
   </li>
 </ul>
 
