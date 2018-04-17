@@ -1,5 +1,4 @@
 # group_i 
-<html lang="ja">
 ファイルをどのフォルダーに入れるか書きます。<br>
 ファイルはアップロードできると思う。<br>
 フォルダーは言ってくれたらつくります。<br>
@@ -22,11 +21,7 @@
     </tr>
   </table>
 </figure>
-
-<div style="width:100px;height:100px;background-color:red;">
-  
 <p style="color:red;">*aaa*</p>
   
-</div>
 
-</html>
+
