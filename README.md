@@ -4,10 +4,7 @@
 ファイルをどのフォルダーに入れるか書きます。<br>
 ファイルはアップロードできると思う。<br>
 フォルダーは言ってくれたらつくります。<br>
-<br>
-<br>
-<figure>
-  <figucaption>フォルダー</figucaption>
+フォルダー
   <table>
     <tr>
       <th>議事録</th>
@@ -22,10 +19,17 @@
       <td>Design</td>
     </tr>
   </table>
-</figure>
 
 <ul>
-  <li>111<br>222</li>
-  <li>333<br>444</li>
+  <li>
+    <table>
+      <tr>
+        
+      </tr>
+      <tr>
+        
+      </tr>
+    </table>
+  </li>
 </ul>
 
