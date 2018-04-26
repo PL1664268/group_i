@@ -4,7 +4,7 @@
 ## フォルダー"*Source*"作りました。<br>
 つくったソースはフォルダー"*Source*"直下に。<br>
 途中のうまく動く段階で、『 othello_v1.java 』,『 othello_v2.java 』・・・ みたいに保存。<br>
-フォルダー"*Test*"は、保存しているファイルごとに動作テスト用のプログラム。
+動作テストとかのファイルがあれば、フォルダー"*Test*"に保存。
 ***
 <img src="./image/grids.png"><br>
   <table>
