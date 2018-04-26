@@ -20,6 +20,14 @@
       <th>設計</th>
       <td>Design</td>
     </tr>
+    <tr>
+     <th>ソースコード</th>
+     <td>Source</td>
+    </tr>
+    <tr>
+     <th>確認プログラム(Source直下)</th>
+     <td>Test</td>
+  </tr>
   </table>
 
 <ul>
