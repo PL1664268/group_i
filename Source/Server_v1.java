@@ -1,8 +1,12 @@
 package othello;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -49,7 +53,22 @@ public class Server_v1 {
 				while(true) {// データを受信し続ける
 					String inputLine = br.readLine();//データを一行分読み込む
 					if (inputLine != null){ //データを受信したら
-						forwardMessage(inputLine, playerNo); //もう一方に転送する
+						if(inputLine.equals("loginRequest")) {
+							String user_name = br.readLine();
+							String password = br.readLine();
+							loginCheck(user_name,password);
+						}
+						else if(inputLine.equals("accountRequest")) {
+								String user_name = br.readLine();
+								String password = br.readLine();
+								accountCreate(user_name, password);
+						}
+						else if(inputLine.equals("myPlayerRequest")) {
+								playerInfo();
+						}
+						else if() {
+							forwardMessage(inputLine, playerNo); //もう一方に転送する
+						}
 					}
 				}
 			} catch (IOException e){ // 接続が切れたとき
@@ -65,11 +84,14 @@ public class Server_v1 {
 
 	//クライアントの接続(サーバの起動)
 	public void acceptClient(){
+		int i=0;
 		try {
 			System.out.println("サーバが起動しました．");
 			ServerSocket ss = new ServerSocket(port); //サーバソケットを用意
 			while (true) {
 				Socket socket = ss.accept(); //新規接続を受け付ける
+				new Receiver(socket,i).start(); //データ受信スレッドのスタート
+				i++;
 			}
 		} catch (Exception e) {
 			System.err.println("ソケット作成時にエラーが発生しました: " + e);
@@ -78,15 +100,53 @@ public class Server_v1 {
 
 
 	//ログイン認証
-	public boolean loginCheck(String use_name, String password) {
+	public boolean loginCheck(String user_name, String password) {
+
 		return true;
 	}
 
 	//アカウント作成
 	public boolean accountCreate(String user_name, String password) {
-		return true;
+		Player_v2 player_obj;
+       try {
+    	   //FileOutputStreamオブジェクトの生成
+    	   FileOutputStream outFile = new FileOutputStream("User.obj");
+           //(ObjectOutputStreamオブジェクトの生成
+    	   ObjectOutputStream outObject = new ObjectOutputStream(outFile);
+    	   //FileInputStreamオブジェクトの生成
+    	   FileInputStream inFile = new FileInputStream("User.obj");
+    	   //ObjectInputStreamオブジェクトの生成
+    	   ObjectInputStream inObject = new ObjectInputStream(inFile);
+
+    	   while((Player_v2)inObject.readObject()!= null) {
+    		   player_obj=(Player_v2)inObject.readObject();
+    		   if(player_obj.getName().equals(user_name)) {
+    	    	   outObject.close();  //オブジェクト出力ストリームのクローズ
+    	      	   inObject.close();  //オブジェクト入力ストリームのクローズ
+    	    	   outFile.close();  //ファイル出力ストリームのクローズ
+    	    	   inFile.close();  //ファイル入力ストリームのクローズ
+    			   return false;
+    		   }
+    	   }
+
+    	   outObject.writeObject(new Player_v2(user_name, password));
+
+    	   outObject.close();  //オブジェクト出力ストリームのクローズ
+      	   inObject.close();  //オブジェクト入力ストリームのクローズ
+    	   outFile.close();  //ファイル出力ストリームのクローズ
+    	   inFile.close();  //ファイル入力ストリームのクローズ
+
+       }
+       catch(Exception e) {
+    	   e.printStackTrace();
+       }
+      	   return true;
 	}
 
+	//Playerの対戦成績を送信
+	public void playerInfo() {
+
+	}
 	//クライアント接続状態の確認
 	public void printStatus(){
 
@@ -111,10 +171,11 @@ public class Server_v1 {
 	public void requestGame(){
 
 	}
-	//先手後手情報の送信
+
+	/*//先手後手情報の送信
 	public void sendColor(int playerNo) {
 
-	}
+	}*/
 
 	//操作情報を転送
 	public void forwardMessage(String msg, int playerNo) {
