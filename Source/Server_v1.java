@@ -1,8 +1,12 @@
-package othello;
+package ohtello;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
@@ -14,45 +18,45 @@ import java.util.List;
 
 public class Server_v1 {
 
-	private int port; //ãƒãƒ¼ãƒˆç•ªå·
-	private boolean [] online; //ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆæ¥ç¶šçŠ¶æ…‹
-	private PrintWriter [] out; //ãƒ‡ãƒ¼ã‚¿é€ä¿¡ç”¨ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
-	private Receiver [] receiver; //ãƒ‡ãƒ¼ã‚¿å—ä¿¡ç”¨ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
-	private String password; //ãƒ‘ã‚¹ãƒ¯ãƒ¼ãƒ‰
-	private String user_name; //ãƒ¦ãƒ¼ã‚¶å
-	private int record; // å¯¾å±€è€…æƒ…å ±
-	private List list; //ãƒªã‚¹ãƒˆã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
+	private int port; //ƒ|[ƒg”Ô†
+	private boolean [] online; //ƒNƒ‰ƒCƒAƒ“ƒgÚ‘±ó‘Ô
+	private PrintWriter [] out; //ƒf[ƒ^‘—M—pƒIƒuƒWƒFƒNƒg
+	private Receiver [] receiver; //ƒf[ƒ^óM—pƒIƒuƒWƒFƒNƒg
+	private String password; //ƒpƒXƒ[ƒh
+	private String user_name; //ƒ†[ƒU–¼
+	private int record; // ‘Î‹ÇÒî•ñ
+	private List list; //ƒŠƒXƒgƒIƒuƒWƒFƒNƒg
 
-	//ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
-	public Server_v1(int port) { //å¾…ã¡å—ã‘ãƒãƒ¼ãƒˆã‚’å¼•æ•°ã¨ã™ã‚‹
-		this.port = port; //å¾…ã¡å—ã‘ãƒãƒ¼ãƒˆã‚’æ¸¡ã™
-		out = new PrintWriter [2]; //ãƒ‡ãƒ¼ã‚¿é€ä¿¡ç”¨ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’2ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆåˆ†ç”¨æ„
-		receiver = new Receiver [2]; //ãƒ‡ãƒ¼ã‚¿å—ä¿¡ç”¨ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’2ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆåˆ†ç”¨æ„
-		online = new boolean[2]; //ã‚ªãƒ³ãƒ©ã‚¤ãƒ³çŠ¶æ…‹ç®¡ç†ç”¨é…åˆ—ã‚’ç”¨æ„
+	//ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+	public Server_v1(int port) { //‘Ò‚¿ó‚¯ƒ|[ƒg‚ğˆø”‚Æ‚·‚é
+		this.port = port; //‘Ò‚¿ó‚¯ƒ|[ƒg‚ğ“n‚·
+		out = new PrintWriter [2]; //ƒf[ƒ^‘—M—pƒIƒuƒWƒFƒNƒg‚ğ2ƒNƒ‰ƒCƒAƒ“ƒg•ª—pˆÓ
+		receiver = new Receiver [2]; //ƒf[ƒ^óM—pƒIƒuƒWƒFƒNƒg‚ğ2ƒNƒ‰ƒCƒAƒ“ƒg•ª—pˆÓ
+		online = new boolean[2]; //ƒIƒ“ƒ‰ƒCƒ“ó‘ÔŠÇ——p”z—ñ‚ğ—pˆÓ
 	}
 
-	// ãƒ‡ãƒ¼ã‚¿å—ä¿¡ç”¨ã‚¹ãƒ¬ãƒƒãƒ‰(å†…éƒ¨ã‚¯ãƒ©ã‚¹)
+	// ƒf[ƒ^óM—pƒXƒŒƒbƒh(“à•”ƒNƒ‰ƒX)
 	class Receiver extends Thread {
-		private InputStreamReader sisr; //å—ä¿¡ãƒ‡ãƒ¼ã‚¿ç”¨æ–‡å­—ã‚¹ãƒˆãƒªãƒ¼ãƒ 
-		private BufferedReader br; //æ–‡å­—ã‚¹ãƒˆãƒªãƒ¼ãƒ ç”¨ã®ãƒãƒƒãƒ•ã‚¡
-		private int playerNo; //ãƒ—ãƒ¬ã‚¤ãƒ¤ã‚’è­˜åˆ¥ã™ã‚‹ãŸã‚ã®ç•ªå·
+		private InputStreamReader sisr; //óMƒf[ƒ^—p•¶šƒXƒgƒŠ[ƒ€
+		private BufferedReader br; //•¶šƒXƒgƒŠ[ƒ€—p‚Ìƒoƒbƒtƒ@
+		private int playerNo; //ƒvƒŒƒCƒ„‚ğ¯•Ê‚·‚é‚½‚ß‚Ì”Ô†
 
-		// å†…éƒ¨ã‚¯ãƒ©ã‚¹Receiverã®ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
+		// “à•”ƒNƒ‰ƒXReceiver‚ÌƒRƒ“ƒXƒgƒ‰ƒNƒ^
 		Receiver (Socket socket, int playerNo){
 			try{
-				this.playerNo = playerNo; //ãƒ—ãƒ¬ã‚¤ãƒ¤ç•ªå·ã‚’æ¸¡ã™
+				this.playerNo = playerNo; //ƒvƒŒƒCƒ„”Ô†‚ğ“n‚·
 				sisr = new InputStreamReader(socket.getInputStream());
 				br = new BufferedReader(sisr);
 			} catch (IOException e) {
-				System.err.println("ãƒ‡ãƒ¼ã‚¿å—ä¿¡æ™‚ã«ã‚¨ãƒ©ãƒ¼ãŒç™ºç”Ÿã—ã¾ã—ãŸ: " + e);
+				System.err.println("ƒf[ƒ^óM‚ÉƒGƒ‰[‚ª”­¶‚µ‚Ü‚µ‚½: " + e);
 			}
 		}
-		// å†…éƒ¨ã‚¯ãƒ©ã‚¹ Receiverã®ãƒ¡ã‚½ãƒƒãƒ‰
+		// “à•”ƒNƒ‰ƒX Receiver‚Ìƒƒ\ƒbƒh
 		public void run(){
 			try{
-				while(true) {// ãƒ‡ãƒ¼ã‚¿ã‚’å—ä¿¡ã—ç¶šã‘ã‚‹
-					String inputLine = br.readLine();//ãƒ‡ãƒ¼ã‚¿ã‚’ä¸€è¡Œåˆ†èª­ã¿è¾¼ã‚€
-					if (inputLine != null){ //ãƒ‡ãƒ¼ã‚¿ã‚’å—ä¿¡ã—ãŸã‚‰
+				while(true) {// ƒf[ƒ^‚ğóM‚µ‘±‚¯‚é
+					String inputLine = br.readLine();//ƒf[ƒ^‚ğˆês•ª“Ç‚İ‚Ş
+					if (inputLine != null){ //ƒf[ƒ^‚ğóM‚µ‚½‚ç
 						if(inputLine.equals("loginRequest")) {
 							String user_name = br.readLine();
 							String password = br.readLine();
@@ -67,125 +71,120 @@ public class Server_v1 {
 								playerInfo();
 						}
 						else if() {
-							forwardMessage(inputLine, playerNo); //ã‚‚ã†ä¸€æ–¹ã«è»¢é€ã™ã‚‹
+							forwardMessage(inputLine, playerNo); //‚à‚¤ˆê•û‚É“]‘—‚·‚é
 						}
 					}
 				}
-			} catch (IOException e){ // æ¥ç¶šãŒåˆ‡ã‚ŒãŸã¨ã
-				System.err.println("ãƒ—ãƒ¬ã‚¤ãƒ¤ " + playerNo + "ã¨ã®æ¥ç¶šãŒåˆ‡ã‚Œã¾ã—ãŸï¼");
-				online[playerNo] = false; //ãƒ—ãƒ¬ã‚¤ãƒ¤ã®æ¥ç¶šçŠ¶æ…‹ã‚’æ›´æ–°ã™ã‚‹
-				printStatus(); //æ¥ç¶šçŠ¶æ…‹ã‚’å‡ºåŠ›ã™ã‚‹
+			} catch (IOException e){ // Ú‘±‚ªØ‚ê‚½‚Æ‚«
+				System.err.println("ƒvƒŒƒCƒ„ " + playerNo + "‚Æ‚ÌÚ‘±‚ªØ‚ê‚Ü‚µ‚½D");
+				online[playerNo] = false; //ƒvƒŒƒCƒ„‚ÌÚ‘±ó‘Ô‚ğXV‚·‚é
+				printStatus(); //Ú‘±ó‘Ô‚ğo—Í‚·‚é
 			}
 		}
 	}
 
 
-	/*********************ãƒ¡ã‚½ãƒƒãƒ‰***********************/
+	/*********************ƒƒ\ƒbƒh***********************/
 
-	//ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆã®æ¥ç¶š(ã‚µãƒ¼ãƒã®èµ·å‹•)
+	//ƒNƒ‰ƒCƒAƒ“ƒg‚ÌÚ‘±(ƒT[ƒo‚Ì‹N“®)
 	public void acceptClient(){
 		int i=0;
 		try {
-			System.out.println("ã‚µãƒ¼ãƒãŒèµ·å‹•ã—ã¾ã—ãŸï¼");
-			ServerSocket ss = new ServerSocket(port); //ã‚µãƒ¼ãƒã‚½ã‚±ãƒƒãƒˆã‚’ç”¨æ„
+			System.out.println("ƒT[ƒo‚ª‹N“®‚µ‚Ü‚µ‚½D");
+			ServerSocket ss = new ServerSocket(port); //ƒT[ƒoƒ\ƒPƒbƒg‚ğ—pˆÓ
 			while (true) {
-				Socket socket = ss.accept(); //æ–°è¦æ¥ç¶šã‚’å—ã‘ä»˜ã‘ã‚‹
-				new Receiver(socket,i).start(); //ãƒ‡ãƒ¼ã‚¿å—ä¿¡ã‚¹ãƒ¬ãƒƒãƒ‰ã®ã‚¹ã‚¿ãƒ¼ãƒˆ
+				Socket socket = ss.accept(); //V‹KÚ‘±‚ğó‚¯•t‚¯‚é
+				new Receiver(socket,i).start(); //ƒf[ƒ^óMƒXƒŒƒbƒh‚ÌƒXƒ^[ƒg
 				i++;
 			}
 		} catch (Exception e) {
-			System.err.println("ã‚½ã‚±ãƒƒãƒˆä½œæˆæ™‚ã«ã‚¨ãƒ©ãƒ¼ãŒç™ºç”Ÿã—ã¾ã—ãŸ: " + e);
+			System.err.println("ƒ\ƒPƒbƒgì¬‚ÉƒGƒ‰[‚ª”­¶‚µ‚Ü‚µ‚½: " + e);
 		}
 	}
 
 
-	//ãƒ­ã‚°ã‚¤ãƒ³èªè¨¼
+	//ƒƒOƒCƒ“”FØ
 	public boolean loginCheck(String user_name, String password) {
 
 		return true;
 	}
 
-	//ã‚¢ã‚«ã‚¦ãƒ³ãƒˆä½œæˆ
+	//ƒAƒJƒEƒ“ƒgì¬
 	public boolean accountCreate(String user_name, String password) {
-		Player_v2 player_obj;
-       try {
-    	   //FileOutputStreamã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ç”Ÿæˆ
-    	   FileOutputStream outFile = new FileOutputStream("User.obj");
-           //(ObjectOutputStreamã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ç”Ÿæˆ
-    	   ObjectOutputStream outObject = new ObjectOutputStream(outFile);
-    	   //FileInputStreamã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ç”Ÿæˆ
-    	   FileInputStream inFile = new FileInputStream("User.obj");
-    	   //ObjectInputStreamã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ç”Ÿæˆ
-    	   ObjectInputStream inObject = new ObjectInputStream(inFile);
 
-    	   while((Player_v2)inObject.readObject()!= null) {
-    		   player_obj=(Player_v2)inObject.readObject();
-    		   if(player_obj.getName().equals(user_name)) {
-    	    	   outObject.close();  //ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆå‡ºåŠ›ã‚¹ãƒˆãƒªãƒ¼ãƒ ã®ã‚¯ãƒ­ãƒ¼ã‚º
-    	      	   inObject.close();  //ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆå…¥åŠ›ã‚¹ãƒˆãƒªãƒ¼ãƒ ã®ã‚¯ãƒ­ãƒ¼ã‚º
-    	    	   outFile.close();  //ãƒ•ã‚¡ã‚¤ãƒ«å‡ºåŠ›ã‚¹ãƒˆãƒªãƒ¼ãƒ ã®ã‚¯ãƒ­ãƒ¼ã‚º
-    	    	   inFile.close();  //ãƒ•ã‚¡ã‚¤ãƒ«å…¥åŠ›ã‚¹ãƒˆãƒªãƒ¼ãƒ ã®ã‚¯ãƒ­ãƒ¼ã‚º
-    			   return false;
-    		   }
-    	   }
+		try {     
+			//FileInputStreamƒIƒuƒWƒFƒNƒg‚Ì¶¬
+            FileInputStream inFile = new FileInputStream("players.obj");
+            //ObjectInputStreamƒIƒuƒWƒFƒNƒg‚Ì¶¬
+            ObjectInputStream inObject = new ObjectInputStream(inFile);
+            //ƒIƒuƒWƒFƒNƒg‚Ì“Ç‚İ‚İ
+            Player player = (Player)inObject.readObject();
 
-    	   outObject.writeObject(new Player_v2(user_name, password));
+            while(player!=null){
+            	if(player.getName().equals(user_name)){
+            		return false;
+            	}
+            }
+            
+            //FileOutputStreamƒIƒuƒWƒFƒNƒg‚Ì¶¬
+            FileOutputStream outFile = new FileOutputStream("players.obj");
+            //ObjectOutputStreamƒIƒuƒWƒFƒNƒg‚Ì¶¬
+            ObjectOutputStream outObject = new ObjectOutputStream(outFile);
+            //ƒNƒ‰ƒXHello‚ÌƒIƒuƒWƒFƒNƒg‚Ì‘‚«‚İ
+            outObject.writeObject(new Player(user_name,password));
 
-    	   outObject.close();  //ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆå‡ºåŠ›ã‚¹ãƒˆãƒªãƒ¼ãƒ ã®ã‚¯ãƒ­ãƒ¼ã‚º
-      	   inObject.close();  //ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆå…¥åŠ›ã‚¹ãƒˆãƒªãƒ¼ãƒ ã®ã‚¯ãƒ­ãƒ¼ã‚º
-    	   outFile.close();  //ãƒ•ã‚¡ã‚¤ãƒ«å‡ºåŠ›ã‚¹ãƒˆãƒªãƒ¼ãƒ ã®ã‚¯ãƒ­ãƒ¼ã‚º
-    	   inFile.close();  //ãƒ•ã‚¡ã‚¤ãƒ«å…¥åŠ›ã‚¹ãƒˆãƒªãƒ¼ãƒ ã®ã‚¯ãƒ­ãƒ¼ã‚º
-
+            outObject.close();
        }
        catch(Exception e) {
     	   e.printStackTrace();
        }
-      	   return true;
+           return true;
+
 	}
 
-	//Playerã®å¯¾æˆ¦æˆç¸¾ã‚’é€ä¿¡
+	//Player‚Ì‘Îí¬Ñ‚ğ‘—M
 	public void playerInfo() {
 
 	}
-	//ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆæ¥ç¶šçŠ¶æ…‹ã®ç¢ºèª
+	//ƒNƒ‰ƒCƒAƒ“ƒgÚ‘±ó‘Ô‚ÌŠm”F
 	public void printStatus(){
 
 	}
 
-	//ãƒ‡ãƒ¼ã‚¿æ›´æ–°
+	//ƒf[ƒ^XV
 	public void dataUpdate() {
 
 	}
 
-	//å¯¾å±€è€…æƒ…å ±ã®è»¢é€
+	//‘Î‹ÇÒî•ñ‚Ì“]‘—
 	public void sendPlayerInfo() {
 
 	}
 
-	//å¯¾å±€å¾…ã¡çŠ¶æ…‹å—ä»˜ and å¯¾æˆ¦è€…ãƒªã‚¹ãƒˆè»¢é€
+	//‘Î‹Ç‘Ò‚¿ó‘Ôó•t and ‘ÎíÒƒŠƒXƒg“]‘—
 	public void sendList(){
 
 ;	}
 
-	//å¯¾å±€ç”³ã—è¾¼ã¿è»¢é€
+	//‘Î‹Ç\‚µ‚İ“]‘—
 	public void requestGame(){
 
 	}
 
-	/*//å…ˆæ‰‹å¾Œæ‰‹æƒ…å ±ã®é€ä¿¡
+	/*//æèŒãèî•ñ‚Ì‘—M
 	public void sendColor(int playerNo) {
 
 	}*/
 
-	//æ“ä½œæƒ…å ±ã‚’è»¢é€
+	//‘€ìî•ñ‚ğ“]‘—
 	public void forwardMessage(String msg, int playerNo) {
 
 	}
 
 	public static void main(String[] args) {
-		// TODO è‡ªå‹•ç”Ÿæˆã•ã‚ŒãŸãƒ¡ã‚½ãƒƒãƒ‰ãƒ»ã‚¹ã‚¿ãƒ–
-		Server_v1 server = new Server_v1(10000); //å¾…ã¡å—ã‘ãƒãƒ¼ãƒˆ10000ç•ªã§ã‚µãƒ¼ãƒã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’æº–å‚™
-		server.acceptClient(); //ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆå—ã‘å…¥ã‚Œã‚’é–‹å§‹
+		// TODO ©“®¶¬‚³‚ê‚½ƒƒ\ƒbƒhEƒXƒ^ƒu
+		Server_v1 server = new Server_v1(10000); //‘Ò‚¿ó‚¯ƒ|[ƒg10000”Ô‚ÅƒT[ƒoƒIƒuƒWƒFƒNƒg‚ğ€”õ
+		server.acceptClient(); //ƒNƒ‰ƒCƒAƒ“ƒgó‚¯“ü‚ê‚ğŠJn
 	}
 
 }
