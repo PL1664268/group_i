@@ -637,17 +637,18 @@ public class Client extends JFrame implements MouseListener {
 		setVisible(true);
 	}
 	
-	 public void connectServer(String ipAddress,int port) {
+	  public boolean connectServer(String ipAddress,int port) {
 		    try {
 		      soc = new Socket(ipAddress,port);
+		      return true;
 		    }catch(UnknownHostException e) {
 		      System.out.println("ホストに接続できません。");
 		      System.out.println(e);
-		      System.exit(1);
+		      return false;
 		    }catch(IOException e) {
 		      System.out.println("サーバー接続時にエラーが発生しました。");
 		      System.out.println(e);
-		      System.exit(1);
+		      return false;
 		    }
 		  }
 
