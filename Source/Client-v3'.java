@@ -2,7 +2,6 @@
 package othello;
 
 import java.awt.Color;
-import java.awt.Container;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -32,7 +31,6 @@ public class Client extends JFrame implements MouseListener {
 	private JButton stop, pass; //停止、スキップ用ボタン
 	private JLabel colorLabel; // 色表示用ラベル
 	private JLabel turnLabel; // 手番表示用ラベル
-	private Container c; // コンテナ
 	private ImageIcon blackIcon, whiteIcon, boardIcon; //アイコン
 	private PrintWriter out;//データ送信用オブジェクト
 	private Receiver receiver; //データ受信用オブジェクト
@@ -49,10 +47,8 @@ public class Client extends JFrame implements MouseListener {
 	  private Socket soc = null;  //ソケット
 
 	// コンストラクタ
-	
-	
-	
-	public Client() {
+	public Client(Othello game) {
+		this.game = game; //引数のOthelloオブジェクトを渡す
 		/*
 		//ウィンドウ設定
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);//ウィンドウを閉じる場合の処理
@@ -514,7 +510,7 @@ public class Client extends JFrame implements MouseListener {
 		
 		playgame.addActionListener(new ActionListener() { // 対局ボタンを押した時の処理
 			 public void actionPerformed(ActionEvent as) {
-				gamewaiting();
+				playothello();
 				p.removeAll();
 			 }
 		});
@@ -578,26 +574,82 @@ public class Client extends JFrame implements MouseListener {
 		setVisible(true);
 	}
 	
-	public void playothello() {
+	public void playothello() {//オセロ
 		
+		int[] grids = game.getGrids(); //getGridメソッドにより局面情報を取得
+		int row = game.getRow(); //getRowメソッドによりオセロ盤の縦横マスの数を取得
+		
+		//ウィンドウ設定
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);//ウィンドウを閉じる場合の処理
+		setTitle("game");//ウィンドウのタイトル
+		setSize(row * 45 + 10, row * 45 + 200);//ウィンドウのサイズを設定
+		
+		//色
+		Color back =new Color(217,217,217);
+		
+		JPanel p = new JPanel();
+		p.setLayout(null);
+		p.setBackground(back);
+		
+		//アイコン設定(画像ファイルをアイコンとして使う)
+		whiteIcon = new ImageIcon("White.jpg");
+		blackIcon = new ImageIcon("Black.jpg");
+		boardIcon = new ImageIcon("GreenFrame.jpg");
+		
+		//オセロ盤の生成
+		buttonArray = new JButton[row * row];//ボタンの配列を作成
+		for(int i = 0 ; i < row * row ; i++){
+			if(grids[i]==1){ buttonArray[i] = new JButton(blackIcon);}//盤面状態に応じたアイコンを設定
+			if(grids[i]==2){ buttonArray[i] = new JButton(whiteIcon);}//盤面状態に応じたアイコンを設定
+			if(grids[i]==0){ buttonArray[i] = new JButton(boardIcon);}//盤面状態に応じたアイコンを設定
+			p.add(buttonArray[i]);//ボタンの配列をペインに貼り付け
+			// ボタンを配置する
+			int x = (i % row) * 45;
+			int y = (int) 10 + (i / row)*45;
+			buttonArray[i].setBounds(x, y, 45, 45);//ボタンの大きさと位置を設定する．
+			//buttonArray[i].addMouseListener(this);//マウス操作を認識できるようにする
+			buttonArray[i].setActionCommand(Integer.toString(i));//ボタンを識別するための名前(番号)を付加する
+		}
+		
+		for(int i=0;i<64;i++) {
+			buttonArray[i].addActionListener(new ActionListener() { // 盤面を押した時の処理
+				 public void actionPerformed(ActionEvent as) {
+					
+				 }
+			});
+		}
+		
+		
+		//降参ボタン
+		stop = new JButton("降参");
+		p.add(stop); 
+		stop.setBounds(0, row * 45 + 30, (row * 45 + 10) / 2, 30);
+		//stop.addMouseListener(this);
+		stop.setActionCommand("stop");
+		
+		//手番表示
+		turnLabel = new JLabel("手番は未定です");
+		turnLabel.setBounds(10, row * 45 + 120, row * 45 + 10, 30);
+		p.add(turnLabel);
+		
+		add(p);
+		
+		setVisible(true);
 	}
 	
-	public boolean connectServer(String ipAddress, int port){	// サーバに接続
-		Socket socket = null;
-		try {
-			socket = new Socket(ipAddress, port); //サーバ(ipAddress, port)に接続
-			out = new PrintWriter(socket.getOutputStream(), true); //データ送信用オブジェクトの用意
-			receiver = new Receiver(socket); //受信用オブジェクトの準備
-			receiver.start();//受信用オブジェクト(スレッド)起動
-		} catch (UnknownHostException e) {
-			System.err.println("ホストのIPアドレスが判定できません: " + e);
-			return false;
-		} catch (IOException e) {
-			System.err.println("サーバ接続時にエラーが発生しました: " + e);
-			return false;
-		}
-		return true;
-	}
+	 public void connectServer(String ipAddress,int port) {
+		    try {
+		      soc = new Socket(ipAddress,port);
+		    }catch(UnknownHostException e) {
+		      System.out.println("ホストに接続できません。");
+		      System.out.println(e);
+		      System.exit(1);
+		    }catch(IOException e) {
+		      System.out.println("サーバー接続時にエラーが発生しました。");
+		      System.out.println(e);
+		      System.exit(1);
+		    }
+		  }
 
 	public void sendMessage(String msg){	// サーバに操作情報を送信
 		out.println(msg);//送信データをバッファに書き出す
@@ -660,10 +712,11 @@ public class Client extends JFrame implements MouseListener {
 	public void mousePressed(MouseEvent e) {}//マウスでオブジェクトを押したときの処理
 	public void mouseReleased(MouseEvent e) {}//マウスで押していたオブジェクトを離したときの処理
 
-	//テスト用のmain
+	//main
 	public static void main(String args[]){
 		
-		Client client = new Client();
-		client.Login();
+		Othello game = new Othello();
+		Client client = new Client(game);
+		client.playothello();
 	}
 }
