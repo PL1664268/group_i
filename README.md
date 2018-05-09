@@ -5,34 +5,58 @@
   <th>内部クラス</th>
  </tr>
  <tr>
-  <th>ReceiveInvite</th><td>対局の申し込み（サーバーからの文字列）を受け取るスレッド<br>**マッチング画面で呼び出す**</td>
+  <th>ReceiveInvite</th><td>対局の申し込み（サーバーからの文字列）を受け取るスレッド<br>
+  
+  **マッチング画面で呼び出す**
+  
+  </td>
  </tr>
  <tr>
-  <th>MatchReceive</th><td>対局中の操作（サーバーからの文字列）を受信するスレッド<br>__対局画面で呼び出す__</td>
+  <th>MatchReceive</th><td>対局中の操作（サーバーからの文字列）を受信するスレッド<br>
+ 
+ **対局画面で呼び出す**
+ 
+ </td>
  </tr>
  <tr>
   <th>メソッド<th>
  </tr>
 　<br>
  <tr>
-  <th>myPlayerRequest()</th><td>サーバー上の自分のPlayerオブジェクトをサーバーから受信する<br>成績参照などで呼び出す</td>
+  <th>myPlayerRequest()</th><td>サーバー上の自分のPlayerオブジェクトをサーバーから受信する<br>
+ 
+ **成績参照などで呼び出す**
+ 
+ </td>
  </tr>
  <tr>
-  <th>otherPlayerRequest()</th><td>サーバー上の他のPlayerオブジェクトのコレクションを持つListオブジェクトを受信する<br>マッチング画面&対局待ちプレイヤーを更新するときに呼び出す</td>
+  <th>otherPlayerRequest()</th><td>サーバー上の他のPlayerオブジェクトのコレクションを持つListオブジェクトを受信する<br>
+ 
+ **マッチング画面&対局待ちプレイヤーを更新するときに呼び出す**
+ 
+ </td>
  </tr>
  <tr>
-  <th>startMatch()</th><td>対局中、自分の操作をサーバーに送るためのストリームをつくる<br>対局画面で呼び出す</td>
+  <th>startMatch()</th><td>対局中、自分の操作をサーバーに送るためのストリームをつくる<br>
+ 
+ **対局画面で呼び出す**
+ 
+ </td>
  </tr>
  <tr>
-  <th>acceptOpponentOperation()</th><td>サーバーから送られてきた相手の操作（文字列）をOthelloオブジェクトに反映させる<br>対局中、サーバーから相手の操作を受信したとき呼び出す</td>
+  <th>acceptOpponentOperation()</th><td>サーバーから送られてきた相手の操作（文字列）をOthelloオブジェクトに反映させる<br>
+ 
+ **対局中、サーバーから相手の操作を受信したとき呼び出す**
+ 
+ </td>
  </tr>
  <tr>
-  <th>acceptMyOperation()</th><td>自分の操作をOhtelloオブジェクトに反映させる<br>マスをクリックしたとき呼び出す（もしかしたら
-  、いらないかも）</td>
+  <th>acceptMyOperation()</th><td>自分の操作をOhtelloオブジェクトに反映させる<br>
+ 
+ **マスをクリックしたとき呼び出す（もしかしたら
+  、いらないかも）**</td>
  </tr>
 </table>
-
-**aaa**
 
 ***
 ## つくったクラスはパッケージothelloに入れること<br>
