@@ -1,3 +1,9 @@
+コレクションをArrayListオブジェクトにできます。<br>
+コンストラクタ:ArrayList(Collection c)
+例:ArrayList arrList = new ArrayList(Map.values());
+<br><br>
+ArrayListを配列にできます。<br>
+Integer numbers = arrList.toArray(new Integer[0]);<br>
 ***
 ## 対局終了後の処理（クライアント側の処理が多くなるようにしました | 太字がServer側）※これよりいい方法があったらどんどん変更してください。
 - Othello.isGameover() == trueが２回続く(相手と自分の打つ手がない。１回目のときに通信上でフラグを送って２回目に検知できるといいかもしれません。)
