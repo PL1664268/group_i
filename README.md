@@ -1,4 +1,22 @@
 ***
+## 対局終了後の処理（クライアント側の処理が多くなるようにしました | 太字がServer側）
+- Othello.isGameover() == trueが２回続く(相手と自分の打つ手がない)
+- Othello.checkWinner()で自分の勝敗を調べる。
+- Clientで対局後の自分自身のRatingの計算をする。
+- Clientで勝敗数、とRatingのなどのPlayerクラスのプロパティを更新する。(Player.setWin(),Player.setRate()など)
+- Clientで勝敗結果とRatingを描画する。
+- Serverに自分自身の勝敗結果とRatingを送信する。(Othelloインスタンスは対局中のClientがそれぞれ１つずつ持つので、自分だけの勝敗をServerに送信すればいよい。)
+- **ServerでClientの勝敗結果とRatingを受け取る。**
+- **Serverが持っているPlayerオブジェクトに受け取った勝敗結果とRatingを反映させる。**<br>
+(参考までにですが、Listを使うなら、List.get(int index)で取り出しList.set(int index, Player)で更新<br>
+Mapを使うなら、Map.get(key="アカウント名など")で取り出しMap.put(key,Player)で更新)<br>
+List:https://www.sejuku.net/blog/20140<br>
+Map:https://www.sejuku.net/blog/16067<br>
+- ClientでstartMatch()で作った出力ストリームをcloseする。
+- ClientでmatchReceive()で作った入力ストリームをcloseする。
+***
+
+***
 ## 内部クラスとメソッド（クライアントプログラム/コントローラー側）
 <table>
  <tr>
@@ -59,7 +77,7 @@
 </table>
 
 ***
-## つくったクラスはパッケージothelloに入れること<br>
+## つくったクラスはパッケージothelloに入れてください<br>
 ***
 ## フォルダー"*Source*"作りました。<br>
 つくったソースはフォルダー"*Source*"直下に。<br>
