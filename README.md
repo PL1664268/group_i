@@ -1,6 +1,6 @@
 ***
-## 対局終了後の処理（クライアント側の処理が多くなるようにしました | 太字がServer側）
-- Othello.isGameover() == trueが２回続く(相手と自分の打つ手がない)
+## 対局終了後の処理（クライアント側の処理が多くなるようにしました | 太字がServer側）※これよりいい方法があったらどんどん変更してください。
+- Othello.isGameover() == trueが２回続く(相手と自分の打つ手がない。１回目のときに通信上でフラグを送って２回目に検知できるといいかもしれません。)
 - Othello.checkWinner()で自分の勝敗を調べる。
 - Clientで対局後の自分自身のRatingの計算をする。
 - Clientで勝敗数、とRatingのなどのPlayerクラスのプロパティを更新する。(Player.setWin(),Player.setRate()など)
@@ -14,6 +14,7 @@ List:https://www.sejuku.net/blog/20140<br>
 Map:https://www.sejuku.net/blog/16067<br>
 - ClientでstartMatch()で作った出力ストリームをcloseする。
 - ClientでmatchReceive()で作った入力ストリームをcloseする。
+- この後はユーザーホームに戻るなどで繰り返し・・・
 ***
 
 ***
