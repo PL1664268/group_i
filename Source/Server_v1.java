@@ -61,39 +61,39 @@ public class Server_v1 {
 				while(true) {// データを受信し続ける
 					String inputLine = br.readLine();//データを一行分読み込む
 					if (inputLine != null){ //データを受信したら
-						if(inputLine.equals("loginRequest")) {
+						if(inputLine.equals("loginRequest")) {//ログイン要求なら
 							String user_name = br.readLine();
-							String password = br.readLine();
+							String password = br.readLine();//user名とpasswordを受け取る
 							System.out.println(user_name);
 							System.out.println(password);
-							String msg = loginCheck(user_name,password);
+							String msg = loginCheck(user_name,password);//整合性をチェック
 							out.println(msg);
 							out.flush();
 							System.out.println("server message sent");
 						}
-						else if(inputLine.equals("accountRequest")) {
+						else if(inputLine.equals("accountRequest")) {//アカウント作成要求なら
 								String user_name = br.readLine();
-								String password = br.readLine();
+								String password = br.readLine();//user名とpasswordを受け取る
 								System.out.println(user_name);
 								System.out.println(password);
-								String msg = accountCreate(user_name, password);
+								String msg = accountCreate(user_name, password);//作成できるなら作成
 								out.println(msg);
 								out.flush();
 								System.out.println("server message sent");
 						}
-						else if(inputLine.equals("myPlayerRequest")) {
+						else if(inputLine.equals("myPlayerRequest")) {//対戦成績の要求なら
 								String user_name = br.readLine();
-								Player player = playerInfo(user_name);
+								Player player = playerInfo(user_name);//該当プレイヤーを探索する
 								out.println(player);
 								out.flush();
 								System.out.println("server message sent");
 						}
-						else if(inputLine.equals("dataUpdate")){
+						else if(inputLine.equals("dataUpdate")){//データ更新なら
 							String user_name = br.readLine();
-							String result = br.readLine();
+							String result = br.readLine();//user名と結果を受け取る
 							System.out.println(user_name);
 							System.out.println(result);
-							dataUpdate(user_name, result);
+							dataUpdate(user_name, result);　//データ更新メソッドを呼び出す
 /*							out.println(msg);
 							out.flush();
 							System.out.println("server message sent");
