@@ -1,13 +1,9 @@
-package ohtello;
+package othello;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.EOFException;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
@@ -16,7 +12,6 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.List;
 
 public class Server_v1 {
 
@@ -61,39 +56,39 @@ public class Server_v1 {
 				while(true) {// データを受信し続ける
 					String inputLine = br.readLine();//データを一行分読み込む
 					if (inputLine != null){ //データを受信したら
-						if(inputLine.equals("loginRequest")) {//ログイン要求なら
+						if(inputLine.equals("loginRequest")) {
 							String user_name = br.readLine();
-							String password = br.readLine();//user名とpasswordを受け取る
+							String password = br.readLine();
 							System.out.println(user_name);
 							System.out.println(password);
-							String msg = loginCheck(user_name,password);//整合性をチェック
+							String msg = loginCheck(user_name,password);
 							out.println(msg);
 							out.flush();
 							System.out.println("server message sent");
 						}
-						else if(inputLine.equals("accountRequest")) {//アカウント作成要求なら
+						else if(inputLine.equals("accountRequest")) {
 								String user_name = br.readLine();
-								String password = br.readLine();//user名とpasswordを受け取る
+								String password = br.readLine();
 								System.out.println(user_name);
 								System.out.println(password);
-								String msg = accountCreate(user_name, password);//作成できるなら作成
+								String msg = accountCreate(user_name, password);
 								out.println(msg);
 								out.flush();
 								System.out.println("server message sent");
 						}
-						else if(inputLine.equals("myPlayerRequest")) {//対戦成績の要求なら
+						else if(inputLine.equals("myPlayerRequest")) {
 								String user_name = br.readLine();
-								Player player = playerInfo(user_name);//該当プレイヤーを探索する
+								Player player = playerInfo(user_name);
 								out.println(player);
 								out.flush();
 								System.out.println("server message sent");
 						}
-						else if(inputLine.equals("dataUpdate")){//データ更新なら
+						else if(inputLine.equals("dataUpdate")){
 							String user_name = br.readLine();
-							String result = br.readLine();//user名と結果を受け取る
+							String result = br.readLine();
 							System.out.println(user_name);
 							System.out.println(result);
-							dataUpdate(user_name, result);　//データ更新メソッドを呼び出す
+							dataUpdate(user_name, result);
 /*							out.println(msg);
 							out.flush();
 							System.out.println("server message sent");
@@ -101,7 +96,7 @@ public class Server_v1 {
 						else if(inputLine.equals("sendList")){
 						}
 						else if(inputLine.equals("requestGame")){
-							
+
 						}
 						else if(inputLine.equals("forwardMessage")) {
 							forwardMessage(inputLine, playerNo); //もう一方に転送する
@@ -121,7 +116,7 @@ public class Server_v1 {
 
 	//クライアントの接続(サーバの起動)
 	public void acceptClient(){
-		int i=0;
+		int i=1;
 		try {
 			System.out.println("サーバが起動しました．");
 			ServerSocket ss = new ServerSocket(port); //サーバソケットを用意
@@ -145,7 +140,7 @@ public class Server_v1 {
             Player player;
 
             try{
-            while(true){   
+            while(true){
             	//ObjectInputStreamオブジェクトの生成
             	ObjectInputStream inObject = new ObjectInputStream(inFile);
             	player = (Player)inObject.readObject();
@@ -153,17 +148,17 @@ public class Server_v1 {
             		inObject.close();
             		System.out.println("login permit");
             		return "permit";
-            	}        
+            	}
      //      		inObject.close();
              }
-            }catch(EOFException e){	
+            }catch(EOFException e){
     		}
             finally{
             }
-            
+
 
 		}catch(Exception e){
-			
+
 		}
    		System.out.println("No permit");
 		return "notPermit";
@@ -171,18 +166,18 @@ public class Server_v1 {
 
 	//アカウント作成
 	public String accountCreate(String user_name, String password) {
-		
 
-		try {     
+
+		try {
 		//	ArrayList<Player> array = new ArrayList<Player>();
 			//FileInputStreamオブジェクトの生成
             FileInputStream inFile = new FileInputStream("players.obj");
- 
+
             //オブジェクトの読み込み
             Player player;
 
             try{
-            while(true){   
+            while(true){
             	//ObjectInputStreamオブジェクトの生成
             	ObjectInputStream inObject = new ObjectInputStream(inFile);
             	player = (Player)inObject.readObject();
@@ -191,21 +186,21 @@ public class Server_v1 {
             		inObject.close();
             		System.out.println("false");
             		return "notPermit";
-            	} 
+            	}
  //           	inObject.close();
              }
-            }catch(EOFException e){	
+            }catch(EOFException e){
     		}
             finally{
              }
-            
+
             //FileOutputStreamオブジェクトの生成
             FileOutputStream outFile = new FileOutputStream("players.obj",true);
             //ObjectOutputStreamオブジェクトの生成
             ObjectOutputStream outObject = new ObjectOutputStream(outFile);
             //クラスHelloのオブジェクトの書き込み
             outObject.writeObject(new Player(user_name,password));
-   
+
             outObject.close();
        }
        catch(Exception e) {
@@ -220,12 +215,12 @@ public class Server_v1 {
 		//Playerオブジェクトを格納する変数
 		Player player = new Player("dammy", "dammy");
 
-        try{  		
+        try{
         	//FileInputStreamオブジェクトの生成
             FileInputStream inFile = new FileInputStream("players.obj");
-       
+
        //該当するオブジェクトを探索
-       while(true){  	
+       while(true){
         	//ObjectInputStreamオブジェクトの生成
         	ObjectInputStream inObject = new ObjectInputStream(inFile);
         	player = (Player)inObject.readObject(); //読み込み
@@ -234,17 +229,23 @@ public class Server_v1 {
         		inObject.close();
         		System.out.println("sent your info");
         		break;
-        	} 
+        	}
          }
         }
-        catch(Exception e){	
+        catch(Exception e){
 		}
        return player; //オブジェクトをリターン、クライアントへ送る。
 	}
-	
+
 	//クライアント接続状態の確認
 	public void printStatus(){
-
+		int i=0;
+		while(i<=online.length) {
+			if(online[i]==true)
+				System.out.println("PlayerNo"+i+"はオンライン状態です");
+			else if(online[i]==false)
+				System.out.println("PlayerNo"+i+"はオフライン状態です");
+		}
 	}
 
 	//データ更新
@@ -252,12 +253,12 @@ public class Server_v1 {
 		//Playerオブジェクトを格納する変数
 		Player player;
 
-        try{  		
+        try{
         	//FileInputStreamオブジェクトの生成
             FileInputStream inFile = new FileInputStream("players.obj");
-       
+
        //データ更新をするオブジェクトを探す
-       while(true){  	
+       while(true){
         	//ObjectInputStreamオブジェクトの生成
         	ObjectInputStream inObject = new ObjectInputStream(inFile);
         	player = (Player)inObject.readObject(); //読み込み
@@ -266,7 +267,7 @@ public class Server_v1 {
         		inObject.close();
         		System.out.println("find object");
         		break;
-        	} 
+        	}
          }
        		//結果に応じてデータを更新
        		if(result=="win"){
@@ -277,12 +278,12 @@ public class Server_v1 {
        		}else if(result=="draw"){
        			player.setDraw(player.getDraw()+1);
 
-       		}else if(result=="surrender"){  
+       		}else if(result=="surrender"){
        			player.setSurrender(player.getSurrender()+1);
        		}
 
         }
-        catch(Exception e){	
+        catch(Exception e){
 		}
 	}
 
@@ -291,7 +292,7 @@ public class Server_v1 {
 
 	}
 */
-	
+
 	//対局待ち状態受付 and 対戦者リスト転送
 	public void sendList(){
 
