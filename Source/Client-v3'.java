@@ -203,11 +203,11 @@ public class Client extends JFrame implements MouseListener {
 				 if( connectServer("localhost", 10000) == true) {
 					 char[] pass2 = password.getPassword(); //char型配列をStringに変換
 					 String pass3 = new String(pass2);
-					 loginRequest(username.getText(),pass3);
-					 if( loginRequest(username.getText(),pass3)==false) {
+					 boolean flag = loginRequest(username.getText(),pass3);
+					 if(flag==false) {
 						 loginfailed.setText("Login failed");
 					 }
-					 if( loginRequest(username.getText(),pass3)==true) {
+					 if(flag==true) {
 						 playername = username.getText();
 						 userhome();
 						 p.removeAll();
@@ -394,11 +394,11 @@ public class Client extends JFrame implements MouseListener {
 					 }
 					 if(connectServer("localhost", 10000) == true) {
 						 
-						 accountRequest(username.getText(),passstring1);
-						 if (accountRequest(username.getText(),passstring1)==false) {
+						 boolean flag=accountRequest(username.getText(),passstring1);
+						 if (flag==false) {
 							 newaccountfailed.setText("This name is unavailable");
 						 }
-						 if (accountRequest(username.getText(),passstring1)==true) {
+						 if (flag==true) {
 							 playername = username.getText();
 							 userhome();
 							 p.removeAll();
