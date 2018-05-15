@@ -16,6 +16,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 
 //パッケージのインポート
 import javax.swing.ImageIcon;
@@ -35,8 +36,15 @@ public class Client extends JFrame implements MouseListener {
 	private PrintWriter out;//データ送信用オブジェクト
 	private Receiver receiver; //データ受信用オブジェクト
 	private Othello game; //Othelloオブジェクト
+	private Player myPlayer;  //自分のPlayerクラスのインスタンス変数
 	private Player player; //Playerオブジェクト
 	private String playername = "Player";
+	private Player opponent;  //対局相手のインスタンス変数
+	private Player[] otherPlayer;
+	
+	
+	int row = 8; //getRowメソッドによりオセロ盤の縦横マスの数を取得
+	JPanel Board = new JPanel();
 	
 	 /*********通信属性*********/
 	  //private Receive receive;  //入力ストリーム用内部クラスのインスタンス変数
@@ -49,55 +57,6 @@ public class Client extends JFrame implements MouseListener {
 	// コンストラクタ
 	public Client(Othello game) {
 		this.game = game; //引数のOthelloオブジェクトを渡す
-		/*
-		//ウィンドウ設定
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);//ウィンドウを閉じる場合の処理
-		setTitle("ネットワーク対戦型オセロゲーム");//ウィンドウのタイトル
-		setSize(row * 45 + 10, row * 45 + 200);//ウィンドウのサイズを設定
-		c = getContentPane();//フレームのペインを取得
-		//アイコン設定(画像ファイルをアイコンとして使う)
-		whiteIcon = new ImageIcon("White.jpg");
-		blackIcon = new ImageIcon("Black.jpg");
-		boardIcon = new ImageIcon("GreenFrame.jpg");
-		c.setLayout(null);//
-		//オセロ盤の生成
-		buttonArray = new JButton[row * row];//ボタンの配列を作成
-		for(int i = 0 ; i < row * row ; i++){
-			if(grids[i]==1){ buttonArray[i] = new JButton(blackIcon);}//盤面状態に応じたアイコンを設定
-			if(grids[i]==2){ buttonArray[i] = new JButton(whiteIcon);}//盤面状態に応じたアイコンを設定
-			if(grids[i]==0){ buttonArray[i] = new JButton(boardIcon);}//盤面状態に応じたアイコンを設定
-			c.add(buttonArray[i]);//ボタンの配列をペインに貼り付け
-			// ボタンを配置する
-			int x = (i % row) * 45;
-			int y = (int) (i / row) * 45;
-			buttonArray[i].setBounds(x, y, 45, 45);//ボタンの大きさと位置を設定する．
-			buttonArray[i].addMouseListener(this);//マウス操作を認識できるようにする
-			buttonArray[i].setActionCommand(Integer.toString(i));//ボタンを識別するための名前(番号)を付加する
-		}
-		//終了ボタン
-		stop = new JButton("終了");//終了ボタンを作成
-		c.add(stop); //終了ボタンをペインに貼り付け
-		stop.setBounds(0, row * 45 + 30, (row * 45 + 10) / 2, 30);//終了ボタンの境界を設定
-		stop.addMouseListener(this);//マウス操作を認識できるようにする
-		stop.setActionCommand("stop");//ボタンを識別するための名前を付加する
-		//パスボタン
-		pass = new JButton("パス");//パスボタンを作成
-		c.add(pass); //パスボタンをペインに貼り付け
-		pass.setBounds((row * 45 + 10) / 2, row * 45 + 30, (row * 45 + 10 ) / 2, 30);//パスボタンの境界を設定
-		pass.addMouseListener(this);//マウス操作を認識できるようにする
-		pass.setActionCommand("pass");//ボタンを識別するための名前を付加する
-		//色表示用ラベル
-		String myName = player.getName();
-		colorLabel = new JLabel(myName + "さんの色は未定です");//色情報を表示するためのラベルを作成
-		colorLabel.setBounds(10, row * 45 + 60 , row * 45 + 10, 30);//境界を設定
-		c.add(colorLabel);//色表示用ラベルをペインに貼り付け
-		//手番表示用ラベル
-		turnLabel = new JLabel("手番は" + game.getTurn() + "です");//手番情報を表示するためのラベルを作成
-		turnLabel.setBounds(10, row * 45 + 120, row * 45 + 10, 30);//境界を設定
-		c.add(turnLabel);//手番情報ラベルをペインに貼り付け
-		
-		*/
-		
 	}
 
 	// メソッド
@@ -196,11 +155,11 @@ public class Client extends JFrame implements MouseListener {
 		
 		login.addActionListener(new ActionListener() { // ログインボタンを押した時の処理
 			 public void actionPerformed(ActionEvent as) {
-				 connectServer("localhost", 10000);
-				 if( connectServer("localhost", 10000) == false) {
+				 boolean connectresult = connectServer("localhost", 10005);
+				 if( connectresult == false) {
 					 serverfailed.setText("Could not connect to the server!");
 				 }
-				 if( connectServer("localhost", 10000) == true) {
+				 if( connectresult == true) {
 					 char[] pass2 = password.getPassword(); //char型配列をStringに変換
 					 String pass3 = new String(pass2);
 					 boolean flag = loginRequest(username.getText(),pass3);
@@ -249,8 +208,8 @@ public class Client extends JFrame implements MouseListener {
 	      in = new BufferedReader(new InputStreamReader(soc.getInputStream()));
 	      out = new PrintWriter(new OutputStreamWriter(soc.getOutputStream()));
 	      out.println("loginRequest");
-	      out.println("userName:"+userName);
-	      out.println("password:"+password);
+	      out.println(userName);
+	      out.println(password);
 	      out.flush();
 	      String isPer = in.readLine();
 	      if(isPer.equals("permit") == true) {  //ログイン認証された
@@ -388,17 +347,17 @@ public class Client extends JFrame implements MouseListener {
 					 passwordfailed.setText("Mismatch");
 				 }
 				 if(passstring2.equals(passstring1)) {
-					 connectServer("localhost", 10000);
-					 if( connectServer("localhost", 10000) == false) {
+					 boolean connectresult = connectServer("localhost", 10005);
+					 if( connectresult == false) {
 						 serverfailed.setText("Could not connect to the server!");
 					 }
-					 if(connectServer("localhost", 10000) == true) {
+					 if(connectresult == true) {
 						 
-						 boolean flag=accountRequest(username.getText(),passstring1);
-						 if (flag==false) {
+						 boolean flag = accountRequest(username.getText(),passstring1);
+						 if (flag ==false) {
 							 newaccountfailed.setText("This name is unavailable");
 						 }
-						 if (flag==true) {
+						 if (flag ==true) {
 							 playername = username.getText();
 							 userhome();
 							 p.removeAll();
@@ -421,8 +380,8 @@ public class Client extends JFrame implements MouseListener {
 	      out = new PrintWriter(new OutputStreamWriter(soc.getOutputStream()));
 	      in = new BufferedReader(new InputStreamReader(soc.getInputStream()));
 	      out.println("accountRequest");
-	      out.println("userName:"+userName);
-	      out.println("password:"+password);
+	      out.println(userName);
+	      out.println(password);
 	      out.flush();
 	      String isPer = in.readLine();
 	      if(isPer.equals("permit") == true) {  //新規作成できる
@@ -510,8 +469,11 @@ public class Client extends JFrame implements MouseListener {
 		
 		playgame.addActionListener(new ActionListener() { // 対局ボタンを押した時の処理
 			 public void actionPerformed(ActionEvent as) {
-				playothello();
-				p.removeAll();
+				 p.removeAll();
+				 //gamewaiting();
+				 //otherPlayerRequest();
+				 playothello();
+				 p.removeAll();
 			 }
 		});
 		
@@ -519,15 +481,268 @@ public class Client extends JFrame implements MouseListener {
 			 public void actionPerformed(ActionEvent as) {
 				score();
 				p.removeAll();
+				myPlayerRequest();
 			 }
 		});
 		
 		setVisible(true);
 	}
 	
-	public void gamewaiting() {
+	public void gamewaiting() { //マッチング画面
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);//ウィンドウを閉じる場合の処理
+		setTitle("Matching");//ウィンドウのタイトル
+		setSize(800, 550);//ウィンドウのサイズを設定
 		
+		//色
+		Color back =new Color(55,113,184);
+		Color text =new Color(247,247,247);
+		Color textback =new Color(4,49,105);
+		Color button =new Color(113,166,0);
+		Color error =new Color(230,92,0);
+		
+		JPanel p = new JPanel();
+		p.setLayout(null);
+		p.setBackground(back);
+		//タイトル
+		JLabel title = new JLabel("MATCHING");
+		title.setForeground(text);
+		title.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 36));
+		title.setBounds(300,20,600,40);
+		
+		//更新ボタン
+		JButton update = new JButton("Update");
+		update.setForeground(text);
+		update.setBackground(button);
+		update.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 24));
+		update.setBounds(630,380,150,50);
+		update.setOpaque(true);
+		update.setBorderPainted(false);
+		
+		//戻るボタン
+		JButton returntohome = new JButton("Home");
+		returntohome.setForeground(text);
+		returntohome.setBackground(button);
+		returntohome.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 24));
+		returntohome.setBounds(630,440,150,50);
+		returntohome.setOpaque(true);
+		returntohome.setBorderPainted(false);
+		
+		//対局待ちリスト＆レート&対局申し込みボタン
+		JLabel player[] = new JLabel[8];
+		JLabel rate[] = new JLabel[8];
+		JButton play[] = new JButton[8];
+		
+		//本来はLabelの中身はotherPlayer[k].getName()
+		player[0] = new JLabel("Player1");
+		player[0].setForeground(text);
+		player[0].setFont(new Font("ＭＳ ゴシック", Font.BOLD, 23));
+		player[0].setBounds(70,120,200,30);
+		
+		player[1] = new JLabel("Player2");
+		player[1].setForeground(text);
+		player[1].setFont(new Font("ＭＳ ゴシック", Font.BOLD, 23));
+		player[1].setBounds(70,170,200,30);
+		
+		player[2] = new JLabel("Player3");
+		player[2].setForeground(text);
+		player[2].setFont(new Font("ＭＳ ゴシック", Font.BOLD, 23));
+		player[2].setBounds(70,220,200,30);
+		
+		player[3] = new JLabel("Player4");
+		player[3].setForeground(text);
+		player[3].setFont(new Font("ＭＳ ゴシック", Font.BOLD, 23));
+		player[3].setBounds(70,270,200,30);
+		
+		player[4] = new JLabel("Player5");
+		player[4].setForeground(text);
+		player[4].setFont(new Font("ＭＳ ゴシック", Font.BOLD, 23));
+		player[4].setBounds(70,320,200,30);
+		
+		player[5] = new JLabel("Player6");
+		player[5].setForeground(text);
+		player[5].setFont(new Font("ＭＳ ゴシック", Font.BOLD, 23));
+		player[5].setBounds(70,370,200,30);
+		
+		player[6] = new JLabel("Player7");
+		player[6].setForeground(text);
+		player[6].setFont(new Font("ＭＳ ゴシック", Font.BOLD, 23));
+		player[6].setBounds(70,420,200,30);
+		
+		player[7] = new JLabel("Player8");
+		player[7].setForeground(text);
+		player[7].setFont(new Font("ＭＳ ゴシック", Font.BOLD, 23));
+		player[7].setBounds(70,470,200,30);
+		
+		//本来はLabelの中身はotherPlayer[k].getRate
+		rate[0] = new JLabel("200");
+		rate[0].setForeground(text);
+		rate[0].setFont(new Font("ＭＳ ゴシック", Font.BOLD, 23));
+		rate[0].setBounds(290,120,200,30);
+		
+		rate[1] = new JLabel("200");
+		rate[1].setForeground(text);
+		rate[1].setFont(new Font("ＭＳ ゴシック", Font.BOLD, 23));
+		rate[1].setBounds(290,170,200,30);
+		
+		rate[2] = new JLabel("200");
+		rate[2].setForeground(text);
+		rate[2].setFont(new Font("ＭＳ ゴシック", Font.BOLD, 23));
+		rate[2].setBounds(290,220,200,30);
+		
+		rate[3] = new JLabel("200");
+		rate[3].setForeground(text);
+		rate[3].setFont(new Font("ＭＳ ゴシック", Font.BOLD, 23));
+		rate[3].setBounds(290,270,200,30);
+		
+		rate[4] = new JLabel("200");
+		rate[4].setForeground(text);
+		rate[4].setFont(new Font("ＭＳ ゴシック", Font.BOLD, 23));
+		rate[4].setBounds(290,320,200,30);
+		
+		rate[5] = new JLabel("200");
+		rate[5].setForeground(text);
+		rate[5].setFont(new Font("ＭＳ ゴシック", Font.BOLD, 23));
+		rate[5].setBounds(290,370,200,30);
+		
+		rate[6] = new JLabel("200");
+		rate[6].setForeground(text);
+		rate[6].setFont(new Font("ＭＳ ゴシック", Font.BOLD, 23));
+		rate[6].setBounds(290,420,200,30);
+		
+		rate[7] = new JLabel("200");
+		rate[7].setForeground(text);
+		rate[7].setFont(new Font("ＭＳ ゴシック", Font.BOLD, 23));
+		rate[7].setBounds(290,470,200,30);
+		
+		play[0] = new JButton("Apply");
+		play[0].setForeground(text);
+		play[0].setBackground(button);
+		play[0].setFont(new Font("ＭＳ ゴシック", Font.BOLD, 24));
+		play[0].setBounds(350,120,130,30);
+		play[0].setOpaque(true);
+		play[0].setBorderPainted(false);
+		
+		play[1] = new JButton("Apply");
+		play[1].setForeground(text);
+		play[1].setBackground(button);
+		play[1].setFont(new Font("ＭＳ ゴシック", Font.BOLD, 24));
+		play[1].setBounds(350,170,130,30);
+		play[1].setOpaque(true);
+		play[1].setBorderPainted(false);
+		
+		play[2] = new JButton("Apply");
+		play[2].setForeground(text);
+		play[2].setBackground(button);
+		play[2].setFont(new Font("ＭＳ ゴシック", Font.BOLD, 24));
+		play[2].setBounds(350,220,130,30);
+		play[2].setOpaque(true);
+		play[2].setBorderPainted(false);
+		
+		play[3] = new JButton("Apply");
+		play[3].setForeground(text);
+		play[3].setBackground(button);
+		play[3].setFont(new Font("ＭＳ ゴシック", Font.BOLD, 24));
+		play[3].setBounds(350,270,130,30);
+		play[3].setOpaque(true);
+		play[3].setBorderPainted(false);
+		
+		play[4] = new JButton("Apply");
+		play[4].setForeground(text);
+		play[4].setBackground(button);
+		play[4].setFont(new Font("ＭＳ ゴシック", Font.BOLD, 24));
+		play[4].setBounds(350,320,130,30);
+		play[4].setOpaque(true);
+		play[4].setBorderPainted(false);
+		
+		play[5] = new JButton("Apply");
+		play[5].setForeground(text);
+		play[5].setBackground(button);
+		play[5].setFont(new Font("ＭＳ ゴシック", Font.BOLD, 24));
+		play[5].setBounds(350,370,130,30);
+		play[5].setOpaque(true);
+		play[5].setBorderPainted(false);
+		
+		play[6] = new JButton("Apply");
+		play[6].setForeground(text);
+		play[6].setBackground(button);
+		play[6].setFont(new Font("ＭＳ ゴシック", Font.BOLD, 24));
+		play[6].setBounds(350,420,130,30);
+		play[6].setOpaque(true);
+		play[6].setBorderPainted(false);
+		
+		play[7] = new JButton("Apply");
+		play[7].setForeground(text);
+		play[7].setBackground(button);
+		play[7].setFont(new Font("ＭＳ ゴシック", Font.BOLD, 24));
+		play[7].setBounds(350,470,130,30);
+		play[7].setOpaque(true);
+		play[7].setBorderPainted(false);
+		
+		p.add(player[0]);
+		p.add(player[1]);
+		p.add(player[2]);
+		p.add(player[3]);
+		p.add(player[4]);
+		p.add(player[5]);
+		p.add(player[6]);
+		p.add(player[7]);
+		p.add(rate[0]);
+		p.add(rate[1]);
+		p.add(rate[2]);
+		p.add(rate[3]);
+		p.add(rate[4]);
+		p.add(rate[5]);
+		p.add(rate[6]);
+		p.add(rate[7]);
+		p.add(play[0]);
+		p.add(play[1]);
+		p.add(play[2]);
+		p.add(play[3]);
+		p.add(play[4]);
+		p.add(play[5]);
+		p.add(play[6]);
+		p.add(play[7]);
+		p.add(title);
+		p.add(update);
+		p.add(returntohome);
+		add(p);
+		
+		update.addActionListener(new ActionListener() { // 更新ボタンを押した時の処理
+			 public void actionPerformed(ActionEvent as) {
+				 otherPlayerRequest();
+				 
+			 }
+		});
+		
+		returntohome.addActionListener(new ActionListener() { // 戻るボタンを押した時の処理
+			 public void actionPerformed(ActionEvent as) {
+				userhome();
+				p.removeAll();
+			 }
+		});
+		
+		setVisible(true);
 	}
+	
+	//対局待ちプレイヤー受付
+	  public void otherPlayerRequest() {
+	    try {
+	      out = new PrintWriter(new OutputStreamWriter(soc.getOutputStream()));
+	      ois = new ObjectInputStream(soc.getInputStream());
+	      ArrayList<Player> playerList = new ArrayList<Player>();
+	      out.println("otherPlayerRequest");
+	      out.flush();
+	      playerList = (ArrayList<Player>)(ois.readObject());
+	      otherPlayer = playerList.toArray(new Player[0]);
+	      out.close();
+	      ois.close();
+	    }catch(Exception e) {
+	      System.out.println(e);
+	      System.exit(1);
+	    }
+	  }
+	  
+	 
 	
 	public void score() {//成績確認画面
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);//ウィンドウを閉じる場合の処理
@@ -551,6 +766,14 @@ public class Client extends JFrame implements MouseListener {
 		title.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 36));
 		title.setBounds(340,20,600,40);
 		
+		JLabel name = new JLabel(myPlayer.getName());
+		name.setForeground(text);
+		name.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 36));
+		name.setBounds(680,10,200,40);
+		
+		
+		
+		
 		//戻るボタン
 		JButton returntohome = new JButton("Home");
 		returntohome.setForeground(text);
@@ -564,7 +787,7 @@ public class Client extends JFrame implements MouseListener {
 		p.add(returntohome);
 		add(p);
 		
-		returntohome.addActionListener(new ActionListener() { // 成績ボタンを押した時の処理
+		returntohome.addActionListener(new ActionListener() { // 戻るボタンを押した時の処理
 			 public void actionPerformed(ActionEvent as) {
 				userhome();
 				p.removeAll();
@@ -574,22 +797,37 @@ public class Client extends JFrame implements MouseListener {
 		setVisible(true);
 	}
 	
+	//プレイヤー情報受付
+	  public void myPlayerRequest() {
+	    try {
+	      out = new PrintWriter(new OutputStreamWriter(soc.getOutputStream()));
+	      ois = new ObjectInputStream(soc.getInputStream());
+	      out.println("myPlayerRequest");
+	      out.flush();
+	      myPlayer = (Player)(ois.readObject());
+	      out.close();
+	      ois.close();
+	    }catch(Exception e) {
+	      System.out.println(e);
+	      System.exit(1);
+	    }
+	  }
+	
 	public void playothello() {//オセロ
 		
 		int[] grids = game.getGrids(); //getGridメソッドにより局面情報を取得
-		int row = game.getRow(); //getRowメソッドによりオセロ盤の縦横マスの数を取得
 		
 		//ウィンドウ設定
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);//ウィンドウを閉じる場合の処理
+		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);//ウィンドウを閉じる場合の処理
 		setTitle("game");//ウィンドウのタイトル
-		setSize(row * 45 + 10, row * 45 + 200);//ウィンドウのサイズを設定
+		setSize(800, 550);//ウィンドウのサイズを設定
 		
 		//色
-		Color back =new Color(217,217,217);
+		Color back =new Color(55,113,184);
 		
-		JPanel p = new JPanel();
-		p.setLayout(null);
-		p.setBackground(back);
+		
+		Board.setLayout(null);
+		Board.setBackground(back);
 		
 		//アイコン設定(画像ファイルをアイコンとして使う)
 		whiteIcon = new ImageIcon("White.jpg");
@@ -602,42 +840,37 @@ public class Client extends JFrame implements MouseListener {
 			if(grids[i]==1){ buttonArray[i] = new JButton(blackIcon);}//盤面状態に応じたアイコンを設定
 			if(grids[i]==2){ buttonArray[i] = new JButton(whiteIcon);}//盤面状態に応じたアイコンを設定
 			if(grids[i]==0){ buttonArray[i] = new JButton(boardIcon);}//盤面状態に応じたアイコンを設定
-			p.add(buttonArray[i]);//ボタンの配列をペインに貼り付け
+			Board.add(buttonArray[i]);//ボタンの配列をペインに貼り付け
 			// ボタンを配置する
-			int x = (i % row) * 45;
-			int y = (int) 10 + (i / row)*45;
+			int x = (i % row) * 45 + 250;
+			int y = (int) 10 + (i / row)*45 + 30;
 			buttonArray[i].setBounds(x, y, 45, 45);//ボタンの大きさと位置を設定する．
-			//buttonArray[i].addMouseListener(this);//マウス操作を認識できるようにする
+			buttonArray[i].addMouseListener(this);//マウス操作を認識できるようにする
 			buttonArray[i].setActionCommand(Integer.toString(i));//ボタンを識別するための名前(番号)を付加する
 		}
 		
-		for(int i=0;i<64;i++) {
-			buttonArray[i].addActionListener(new ActionListener() { // 盤面を押した時の処理
-				 public void actionPerformed(ActionEvent as) {
-					
-				 }
-			});
-		}
-		
-		
 		//降参ボタン
 		stop = new JButton("降参");
-		p.add(stop); 
 		stop.setBounds(0, row * 45 + 30, (row * 45 + 10) / 2, 30);
-		//stop.addMouseListener(this);
-		stop.setActionCommand("stop");
+		Board.add(stop); 
+		stop.addActionListener(new ActionListener() { // 降参ボタンを押した時の処理
+			 public void actionPerformed(ActionEvent as) {
+				Board.removeAll();
+				userhome();
+			 }
+		});
 		
 		//手番表示
-		turnLabel = new JLabel("手番は未定です");
+		turnLabel = new JLabel(game.getTurn() + "の番です");
 		turnLabel.setBounds(10, row * 45 + 120, row * 45 + 10, 30);
-		p.add(turnLabel);
+		Board.add(turnLabel);
 		
-		add(p);
+		add(Board);
 		
 		setVisible(true);
 	}
 	
-	  public boolean connectServer(String ipAddress,int port) {
+	 public boolean connectServer(String ipAddress,int port) {
 		    try {
 		      soc = new Socket(ipAddress,port);
 		      return true;
@@ -690,9 +923,52 @@ public class Client extends JFrame implements MouseListener {
 	public void receiveMessage(String msg){	// メッセージの受信
 		System.out.println("サーバからメッセージ " + msg + " を受信しました"); //テスト用標準出力
 	}
+	
 	public void updateDisp(){// 画面を更新する
+		Board.removeAll();
+		int[] grids = game.getGrids(); //getGridメソッドにより局面情報を取得
 		
+		//色
+		Color back =new Color(55,113,184);
+				
+				
+		Board.setLayout(null);
+		Board.setBackground(back);
 		
+		//オセロ盤の表示
+		buttonArray = new JButton[row * row];//ボタンの配列を作成
+		for(int i = 0 ; i < row * row ; i++){
+			if(grids[i]==1){ buttonArray[i] = new JButton(blackIcon);}//盤面状態に応じたアイコンを設定
+			if(grids[i]==2){ buttonArray[i] = new JButton(whiteIcon);}//盤面状態に応じたアイコンを設定
+			if(grids[i]==0){ buttonArray[i] = new JButton(boardIcon);}//盤面状態に応じたアイコンを設定
+			Board.add(buttonArray[i]);//ボタンの配列をペインに貼り付け
+			// ボタンを配置する
+			int x = (i % row) * 45 + 250;
+			int y = (int) 10 + (i / row)*45 + 30;
+			buttonArray[i].setBounds(x, y, 45, 45);//ボタンの大きさと位置を設定する．
+			buttonArray[i].addMouseListener(this);//マウス操作を認識できるようにする
+			buttonArray[i].setActionCommand(Integer.toString(i));//ボタンを識別するための名前(番号)を付加する
+		}
+		//降参ボタン
+		stop = new JButton("降参");
+		Board.add(stop); 
+		stop.setBounds(0, row * 45 + 30, (row * 45 + 10) / 2, 30);
+		stop.addActionListener(new ActionListener() { // 成績ボタンを押した時の処理
+			 public void actionPerformed(ActionEvent as) {
+				Board.removeAll();
+				userhome();
+			 }
+		});
+		
+				
+		//手番表示
+		System.out.println("手番は" + game.getTurn());
+		turnLabel.setText(game.getTurn() + "の番です");
+		turnLabel.setBounds(10, row * 45 + 150, row * 45 + 10, 30);
+		Board.add(turnLabel);
+		
+		add(Board);
+		setVisible(true);
 	}
 	public void acceptOperation(String command){	// プレイヤの操作を受付
 	}
@@ -701,13 +977,28 @@ public class Client extends JFrame implements MouseListener {
 	public void mouseClicked(MouseEvent e) {
 		JButton theButton = (JButton)e.getComponent();//クリックしたオブジェクトを得る．キャストを忘れずに
 		String command = theButton.getActionCommand();//ボタンの名前を取り出す
-		game.putStone(Integer.parseInt(command), game.getTurn());
-		game.chengeTurn();
-		game.getGrids();
-		updateDisp();
-		System.out.println("マウスがクリックされました。押されたボタンは " + command + "です。");//テスト用に標準出力
-		sendMessage(command); //テスト用にメッセージを送信
+		boolean isgameover1 = game.isGameover(game.getTurn(),game.getGrids());
+		if(isgameover1 == false) {
+			boolean putresult = game.putStone(Integer.parseInt(command), game.getTurn());
+			if(putresult==true) {
+				game.chengeTurn();
+			}
+			System.out.println("マウスがクリックされました。押されたボタンは " + command + "です。");//テスト用に標準出力
+			//sendMessage(command); //メッセージを送信
+			updateDisp();
+			boolean isgameover2 = game.isGameover(game.getTurn(),game.getGrids());
+			if(isgameover2 == true) {
+				String winner = game.checkWinner();
+				System.out.println(winner);
+			}
+		}
+		if(isgameover1 == true) {
+			String winner = game.checkWinner();
+			System.out.println(winner);
+		}
 	}
+	
+	
 	public void mouseEntered(MouseEvent e) {}//マウスがオブジェクトに入ったときの処理
 	public void mouseExited(MouseEvent e) {}//マウスがオブジェクトから出たときの処理
 	public void mousePressed(MouseEvent e) {}//マウスでオブジェクトを押したときの処理
@@ -718,6 +1009,6 @@ public class Client extends JFrame implements MouseListener {
 		
 		Othello game = new Othello();
 		Client client = new Client(game);
-		client.playothello();
+		client.gamewaiting();
 	}
 }
