@@ -7,6 +7,7 @@ public class Player implements Serializable {               //クラスPlayer:�
   private String myColor = "";      //先手後手情報
   private int[] results = {0,0,0,0};
   private  String password;
+  puublic int ThreadNo;
   //勝利数:0
   //敗北数:1
   //引き分け数:2
@@ -17,7 +18,13 @@ public class Player implements Serializable {               //クラスPlayer:�
     this.myName = user_name;
     this.password = password;
   }
-
+ public void setThreadNo(int ThreadNo) {
+   this.ThreadNo = ThreadNo;
+ }
+  
+  public String getName() { 
+    return ThreadNo; 
+  }
   public void setName(String name) {    //プレイヤ名を受け付ける
     myName = name;
   }
