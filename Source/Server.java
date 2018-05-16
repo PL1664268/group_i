@@ -1,4 +1,4 @@
-package ohtello;
+package othello;
 
 import java.io.BufferedReader;
 import java.io.EOFException;
@@ -13,237 +13,278 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Server {
-	private int MAX=100;
-	private int port; //ƒ|[ƒg”Ô†
-	private boolean [] online; //ƒNƒ‰ƒCƒAƒ“ƒgÚ‘±ó‘Ô
-	private PrintWriter [] out; //ƒf[ƒ^‘—M—pƒIƒuƒWƒFƒNƒg
-	private Receiver [] receiver; //ƒf[ƒ^óM—pƒIƒuƒWƒFƒNƒg
-	private String password; //ƒpƒXƒ[ƒh
-	private String user_name; //ƒ†[ƒU–¼
-	ArrayList<Player> game_online_list = new ArrayList<Player>(); //ƒŠƒXƒgƒIƒuƒWƒFƒNƒg
-	  Receiver receiveThread[ ]= new Receiver[MAX];      // ƒ`ƒƒƒbƒgƒNƒ‰ƒX”z—ñ
-	  //Thread receiveThread[ ] = new Thread[MAX];   // ƒNƒ‰ƒCƒAƒ“ƒg‚Æ‚Ì“üo—ÍƒXƒŒƒbƒh
-	 
+	private int MAX=100; //æœ€å¤§æ¥ç¶šæ•°
+	private int port; //ãƒãƒ¼ãƒˆç•ªå·
+	private boolean [] online; //ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆæ¥ç¶šçŠ¶æ…‹
+	ArrayList<Player> game_online_list = new ArrayList<Player>(); //å¯¾æˆ¦å¾…ã¡çŠ¶æ…‹ã®ArrayList
+	Receiver receiveThread[] = new Receiver[MAX];      // ãƒãƒ£ãƒƒãƒˆã‚¯ãƒ©ã‚¹é…åˆ—
 
-	//ƒRƒ“ƒXƒgƒ‰ƒNƒ^
-	public Server(int port) { //‘Ò‚¿ó‚¯ƒ|[ƒg‚ğˆø”‚Æ‚·‚é
-		this.port = port; //‘Ò‚¿ó‚¯ƒ|[ƒg‚ğ“n‚·
-		out = new PrintWriter [2]; //ƒf[ƒ^‘—M—pƒIƒuƒWƒFƒNƒg‚ğ2ƒNƒ‰ƒCƒAƒ“ƒg•ª—pˆÓ
-		receiver = new Receiver [2]; //ƒf[ƒ^óM—pƒIƒuƒWƒFƒNƒg‚ğ2ƒNƒ‰ƒCƒAƒ“ƒg•ª—pˆÓ
-		online = new boolean[2]; //ƒIƒ“ƒ‰ƒCƒ“ó‘ÔŠÇ——p”z—ñ‚ğ—pˆÓ
+	//ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
+	public Server(int port) { //å¾…ã¡å—ã‘ãƒãƒ¼ãƒˆã‚’å¼•æ•°ã¨ã™ã‚‹
+		this.port = port; //å¾…ã¡å—ã‘ãƒãƒ¼ãƒˆã‚’æ¸¡ã™
+		online = new boolean[MAX]; //ã‚ªãƒ³ãƒ©ã‚¤ãƒ³çŠ¶æ…‹ç®¡ç†ç”¨é…åˆ—ã‚’ç”¨æ„
 	}
 
-	// ƒf[ƒ^óM—pƒXƒŒƒbƒh(“à•”ƒNƒ‰ƒX)
+	/**********************ãƒ‡ãƒ¼ã‚¿å—ä¿¡ç”¨ã‚¹ãƒ¬ãƒƒãƒ‰(å†…éƒ¨ã‚¯ãƒ©ã‚¹)**********************/
 	class Receiver extends Thread{
-		private InputStreamReader sisr; //óMƒf[ƒ^—p•¶šƒXƒgƒŠ[ƒ€
-		private BufferedReader br; //•¶šƒXƒgƒŠ[ƒ€—p‚Ìƒoƒbƒtƒ@
-		private PrintWriter out;
-		private int ThreadNo; //ƒvƒŒƒCƒ„‚ğ¯•Ê‚·‚é‚½‚ß‚Ì”Ô†
-		private Player player = new Player("dammy", "dammy");
-		// “à•”ƒNƒ‰ƒXReceiver‚ÌƒRƒ“ƒXƒgƒ‰ƒNƒ^
+		private InputStreamReader sisr; //å—ä¿¡ãƒ‡ãƒ¼ã‚¿ç”¨æ–‡å­—ã‚¹ãƒˆãƒªãƒ¼ãƒ 
+		private BufferedReader br; //æ–‡å­—ã‚¹ãƒˆãƒªãƒ¼ãƒ ç”¨ã®ãƒãƒƒãƒ•ã‚¡
+		private PrintWriter out; //ãƒ‡ãƒ¼ã‚¿é€ä¿¡ç”¨ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
+		private int ThreadNo; //ãƒ—ãƒ¬ã‚¤ãƒ¤ã‚’è­˜åˆ¥ã™ã‚‹ãŸã‚ã®ç•ªå·,ã‚¹ãƒ¬ãƒƒãƒ‰ç•ªå·
+		private Player player = new Player("dammy", "dammy"); //playerã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆ
+		private boolean flag = false;
+		private String user_name;
+		HashMap<Player,Player> map = new HashMap<Player,Player>();
+
+		//å†…éƒ¨ã‚¯ãƒ©ã‚¹Receiverã®ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 		Receiver (Socket socket, Server server, int ThreadNo){
 			try{
-				this.ThreadNo = ThreadNo; //ƒvƒŒƒCƒ„”Ô†‚ğ“n‚·
+				this.ThreadNo = ThreadNo; //ãƒ—ãƒ¬ã‚¤ãƒ¤ç•ªå·ã‚’æ¸¡ã™
 				sisr = new InputStreamReader(socket.getInputStream());
-				br = new BufferedReader(sisr);
+				br = new BufferedReader(sisr); //
 				out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
-				System.out.println(ThreadNo+"‚ª‚¹‚Â‚¼‚­‚µ‚Ü‚µ‚½");
+				System.out.println(ThreadNo+"ãŒã›ã¤ããã—ã¾ã—ãŸ");
 			} catch (IOException e) {
-				System.err.println("ƒf[ƒ^óM‚ÉƒGƒ‰[‚ª”­¶‚µ‚Ü‚µ‚½: " + e);
+				System.err.println("ãƒ‡ãƒ¼ã‚¿å—ä¿¡æ™‚ã«ã‚¨ãƒ©ãƒ¼ãŒç™ºç”Ÿã—ã¾ã—ãŸ: " + e);
 			}
 		}
-		// “à•”ƒNƒ‰ƒX Receiver‚Ìƒƒ\ƒbƒh
+
+		//runãƒ¡ã‚½ãƒƒãƒ‰
 		public void run(){
 			try{
-				while(true) {// ƒf[ƒ^‚ğóM‚µ‘±‚¯‚é
-					String inputLine = br.readLine();//ƒf[ƒ^‚ğˆês•ª“Ç‚İ‚Ş
-					if (inputLine != null){ //ƒf[ƒ^‚ğóM‚µ‚½‚ç
+				while(true) {// ãƒ‡ãƒ¼ã‚¿ã‚’å—ä¿¡ã—ç¶šã‘ã‚‹
+					String inputLine = br.readLine();//ãƒ‡ãƒ¼ã‚¿ã‚’ä¸€è¡Œåˆ†èª­ã¿è¾¼ã‚€
+					if (inputLine != null){//ãƒ‡ãƒ¼ã‚¿ã‚’å—ä¿¡ã—ãŸã‚‰,å…ˆé ­ãƒ¡ãƒƒã‚»ãƒ¼ã‚¸ã«ã‚ˆã£ã¦ãƒ¡ã‚½ãƒƒãƒ‰ã‚’å‘¼ã¶
+
+						//ãƒ­ã‚°ã‚¤ãƒ³èªè¨¼ã®ãƒªã‚¯ã‚¨ã‚¹ãƒˆãªã‚‰
 						if(inputLine.equals("loginRequest")) {
-							String user_name = br.readLine();
+							//ãƒ¦ãƒ¼ã‚¶åã¨ãƒ‘ã‚¹ãƒ¯ãƒ¼ãƒ‰ã‚’å—ã‘å–ã‚‹
+							user_name = br.readLine();
 							String password = br.readLine();
 							System.out.println(user_name);
 							System.out.println(password);
-							String msg = loginCheck(user_name,password);
+							//ãƒ­ã‚°ã‚¤ãƒ³ã§ãã‚‹ã‹ã‚’ç¢ºèª
+							String msg = loginCheck(user_name,password,ThreadNo);
 							out.println(msg);
-							out.println(ThreadNo);
+							//ã§ãã‚‹ãªã‚‰ã€çµæœãƒ»ã‚¹ãƒ¬ãƒƒãƒ‰ç•ªå·ãƒ»ãã®Playerã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’é€ã‚‹
+							if(msg.equals("permit")) {
+								online[ThreadNo]=true;
+							}
 							out.flush();
 							System.out.println("server message sent");
 						}
+						//ã‚¢ã‚«ã‚¦ãƒ³ãƒˆä½œæˆã®ãƒªã‚¯ã‚¨ã‚¹ãƒˆãªã‚‰
 						else if(inputLine.equals("accountRequest")) {
-								String user_name = br.readLine();
+								//ãƒ¦ãƒ¼ã‚¶åã¨ãƒ‘ã‚¹ãƒ¯ãƒ¼ãƒ‰ã‚’å—ã‘å–ã‚‹
+								user_name = br.readLine();
 								String password = br.readLine();
 								System.out.println(user_name);
 								System.out.println(password);
-								String msg = accountCreate(user_name, password);
+								//ã‚¢ã‚«ã‚¦ãƒ³ãƒˆä½œæˆãŒã§ãã‚‹ã‹ç¢ºèª
+								String msg = accountCreate(user_name, password,ThreadNo);
 								out.println(msg);
+								//ã§ãã‚‹ãªã‚‰ã€çµæœãƒ»ã‚¹ãƒ¬ãƒƒãƒ‰ç•ªå·ãƒ»ãã®Playerã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’é€ã‚‹
+								if(msg.equals("permit")) {
+									online[ThreadNo]=true;
+								}
 								out.flush();
 								System.out.println("server message sent");
 						}
+						//å¯¾æˆ¦æˆç¸¾ã®ãƒªã‚¯ã‚¨ã‚¹ãƒˆãªã‚‰
 						else if(inputLine.equals("myPlayerRequest")) {
-								String user_name = br.readLine();
+							    //ãƒ¦ãƒ¼ã‚¶åã‚’å—ã‘å–ã‚Šã€æ¢ç´¢ã—ã¦è©²å½“ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’è¿”ã™
 								Player player = playerInfo(user_name);
+								player.ThreadNo=ThreadNo;
 								out.println(player);
 								out.flush();
 								System.out.println("server message sent");
 						}
+						//ãƒ‡ãƒ¼ã‚¿æ›´æ–°ã®ãƒªã‚¯ã‚¨ã‚¹ãƒˆãªã‚‰
 						else if(inputLine.equals("dataUpdate")){
+							//ãƒ¦ãƒ¼ã‚¶åã¨çµæœã‚’å—ã‘å–ã‚Šã€ãƒ‡ãƒ¼ã‚¿ã‚’æ›´æ–°
 							String user_name = br.readLine();
 							String result = br.readLine();
 							System.out.println(user_name);
 							System.out.println(result);
 							dataUpdate(user_name, result);
-/*							out.println(msg);
-							out.flush();
-							System.out.println("server message sent");
-*/						}
+						}
+						//å¯¾å±€å¾…ã¡çŠ¶æ…‹ã®ãƒªã‚¹ãƒˆã®ãƒªã‚¯ã‚¨ã‚¹ãƒˆãªã‚‰
 						else if(inputLine.equals("otherPlayerRequest")){
-							boolean flag = false;
+							//å¯¾å±€å¾…ã¡çŠ¶æ…‹ã«é·ç§»ã—ã¦ã®ãƒªã‚¯ã‚¨ã‚¹ãƒˆãªã‚‰
 							if(!flag){
+								//è‡ªåˆ†è‡ªèº«ã‚’å¾…ã¡çŠ¶æ…‹ãƒªã‚¹ãƒˆã«å…¥ã‚Œã€ãƒªã‚¹ãƒˆã‚’é€ã‚‹
 								game_online_list.add(player);
 								out.println(game_online_list);
 								flag=true;
-							}else 	out.println(game_online_list);
+							}
+							//updateã«ã‚ˆã‚‹å†é€ä¿¡ã®ãƒªã‚¯ã‚¨ã‚¹ãƒˆãªã‚‰
+							else 	out.println(game_online_list); //ç¾åœ¨ã®å¾…ã¡çŠ¶æ…‹ãƒªã‚¹ãƒˆã‚’é€ã‚‹
 						}
+						//ä»–è€…ã¸ã®å¯¾å±€ç”³ã—è¾¼ã¿ãªã‚‰
 						else if(inputLine.equals("requestGame")){
+							//å¯¾å±€è€…ã®ThreadNoã¨è‡ªèº«ã®listç•ªå·ã‚’å—ã‘å–ã‚Š
 							int opponent = br.read();
-							requestGame(opponent);
+							String applier = String.valueOf(br.read());
+							map.put(player, receiveThread[opponent].player);
+							receiveThread[opponent].map.put(receiveThread[opponent].player, player);
+							//å¯¾å±€ã‚’ç”³ã—è¾¼ã‚€
+							requestGame(opponent,applier);
 						}
+						//ç”³ã—è¾¼ã«å¯¾ã™ã‚‹ç­”ãˆ
+						else if(inputLine.equals("Answear")) {
+							String ans = br.readLine();
+							if(ans.equals("Yes")) {
+								receiveThread[map.get(player).ThreadNo].sendMessage("Yes");
+							}
+							else if(ans.equals("No")) {
+								receiveThread[map.get(player).ThreadNo].sendMessage("No");
+								receiveThread[map.get(player).ThreadNo].map.remove(receiveThread[map.get(player).ThreadNo].player);
+								map.remove(player);
+							}
+						}
+						//å¯¾å±€ä¸­ã®ãƒ‡ãƒ¼ã‚¿è»¢é€ã®ãƒªã‚¯ã‚¨ã‚¹ãƒˆãªã‚‰
 						else if(inputLine.equals("forwardMessage")) {
-							forwardMessage(inputLine, ThreadNo); //‚à‚¤ˆê•û‚É“]‘—‚·‚é
+							String color = br.readLine();
+							String operation = br.readLine();
+							forwardMessage(color, operation, map.get(player).ThreadNo); //ã‚‚ã†ä¸€æ–¹ã«è»¢é€ã™ã‚‹
 						}
 					}
 				}
-			} catch (IOException e){ // Ú‘±‚ªØ‚ê‚½‚Æ‚«
-				System.err.println("ƒvƒŒƒCƒ„ " + ThreadNo + "‚Æ‚ÌÚ‘±‚ªØ‚ê‚Ü‚µ‚½D");
+			} catch (IOException e){ // æ¥ç¶šãŒåˆ‡ã‚ŒãŸã¨ã
+				System.err.println("ãƒ—ãƒ¬ã‚¤ãƒ¤ " + ThreadNo + "ã¨ã®æ¥ç¶šãŒåˆ‡ã‚Œã¾ã—ãŸï¼");
 				game_online_list.remove(game_online_list.indexOf(player));
-				online[ThreadNo] = false; //ƒvƒŒƒCƒ„‚ÌÚ‘±ó‘Ô‚ğXV‚·‚é
-				printStatus(); //Ú‘±ó‘Ô‚ğo—Í‚·‚é
+				online[ThreadNo] = false; //ãƒ—ãƒ¬ã‚¤ãƒ¤ã®æ¥ç¶šçŠ¶æ…‹ã‚’æ›´æ–°ã™ã‚‹
+				flag=false;
+				printStatus(); //æ¥ç¶šçŠ¶æ…‹ã‚’å‡ºåŠ›ã™ã‚‹
 			}
 		}
 		public synchronized void sendMessage(String message) {
-		    out.println(message);         // ƒXƒŒƒbƒh‚ª‰‘Î‚·‚éƒNƒ‰ƒCƒAƒ“ƒg‚É‘—M
-		    out.flush( );             // ƒoƒbƒtƒ@“à‚Ìƒf[ƒ^‚ğ‹­§“I‚É‘—M
+		    out.println(message);         // ã‚¹ãƒ¬ãƒƒãƒ‰ãŒå¿œå¯¾ã™ã‚‹ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆã«é€ä¿¡
+		    out.flush();             // ãƒãƒƒãƒ•ã‚¡å†…ã®ãƒ‡ãƒ¼ã‚¿ã‚’å¼·åˆ¶çš„ã«é€ä¿¡
 		  }
 	}
+	/**********************************å—ä¿¡ã‚¹ãƒ¬ãƒƒãƒ‰(å†…éƒ¨ã‚¯ãƒ©ã‚¹)ã®çµ‚ã‚ã‚Š*******************************/
 
 
-	/*********************ƒƒ\ƒbƒh***********************/
+/****************************************ãƒ¡ã‚½ãƒƒãƒ‰**************************************************/
 
-	//ƒNƒ‰ƒCƒAƒ“ƒg‚ÌÚ‘±(ƒT[ƒo‚Ì‹N“®)
+	//ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆã®æ¥ç¶š(ã‚µãƒ¼ãƒã®èµ·å‹•)
 	public void acceptClient(){
-		int i=1;
 		try {
-			System.out.println("ƒT[ƒo‚ª‹N“®‚µ‚Ü‚µ‚½D");
-			ServerSocket ss = new ServerSocket(port); //ƒT[ƒoƒ\ƒPƒbƒg‚ğ—pˆÓ
+			System.out.println("ã‚µãƒ¼ãƒãŒèµ·å‹•ã—ã¾ã—ãŸï¼");
+			ServerSocket ss = new ServerSocket(port); //ã‚µãƒ¼ãƒã‚½ã‚±ãƒƒãƒˆã‚’ç”¨æ„
 			while (true) {
 			       int p;
-			        for (p = 0; p < MAX; p++){      // Ú‘±ƒ`ƒFƒbƒN
-			          if (receiveThread[p] == null)    // ‹ó‚¢‚Ä‚¢‚éê‡
+			        for (p = 0; p < MAX; p++){      // æ¥ç¶šãƒã‚§ãƒƒã‚¯
+			          if (receiveThread[p] == null)    // ç©ºã„ã¦ã„ã‚‹å ´åˆ
 			            break;
 			        }
-			        if (p == MAX)           // ‹ó‚¢‚Ä‚¢‚È‚¢ê‡
-			            continue;             // ˆÈ‰º‚Ìˆ—‚ğ‚µ‚È‚¢
+			        if (p == MAX)           // ç©ºã„ã¦ã„ãªã„å ´åˆ
+			            continue;             // ä»¥ä¸‹ã®å‡¦ç†ã‚’ã—ãªã„
 
-				Socket socket = ss.accept(); //V‹KÚ‘±‚ğó‚¯•t‚¯‚é
-				receiveThread[p] = new Receiver(socket, this, p);      
-		        receiveThread[p].start( );       // ƒXƒŒƒbƒhƒXƒ^[ƒg
+				Socket socket = ss.accept(); //æ–°è¦æ¥ç¶šã‚’å—ã‘ä»˜ã‘ã‚‹
+				receiveThread[p] = new Receiver(socket, this, p);
+		        receiveThread[p].start( );       // ã‚¹ãƒ¬ãƒƒãƒ‰ã‚¹ã‚¿ãƒ¼ãƒˆ
 		     }
 		} catch (Exception e) {
-			System.err.println("ƒ\ƒPƒbƒgì¬‚ÉƒGƒ‰[‚ª”­¶‚µ‚Ü‚µ‚½: " + e);
+			System.err.println("ã‚½ã‚±ãƒƒãƒˆä½œæˆæ™‚ã«ã‚¨ãƒ©ãƒ¼ãŒç™ºç”Ÿã—ã¾ã—ãŸ: " + e);
 		}
 	}
 
-
-	//ƒƒOƒCƒ“”FØ
-	public String loginCheck(String user_name, String password) {
+	//ãƒ­ã‚°ã‚¤ãƒ³èªè¨¼
+	public String loginCheck(String user_name, String password, int ThreadNo) {
 		try{
-			//FileInputStreamƒIƒuƒWƒFƒNƒg‚Ì¶¬
+			Player player;
+			//FileInputStreamã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ç”Ÿæˆ
 			FileInputStream inFile = new FileInputStream("players.obj");
-	        //ƒIƒuƒWƒFƒNƒg‚Ì“Ç‚İ‚İ
-            Player player;
 
             try{
             while(true){
-            	//ObjectInputStreamƒIƒuƒWƒFƒNƒg‚Ì¶¬
+            	//ObjectInputStreamã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ç”Ÿæˆ
             	ObjectInputStream inObject = new ObjectInputStream(inFile);
-            	player = (Player)inObject.readObject();
+            	player = (Player)inObject.readObject(); //ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®èª­ã¿è¾¼ã¿
+
+            	//ã‚‚ã—ã€ãƒ¦ãƒ¼ã‚¶åã¨ãƒ‘ã‚¹ãƒ¯ãƒ¼ãƒ‰ãŒä¸€è‡´ã™ã‚‹ãªã‚‰
             	if(player.getName().equals(user_name) && player.getPassword().equals(password)){
+            		receiveThread[ThreadNo].player=player; //ãã®playerã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’å–ã‚Šå‡ºã™
             		inObject.close();
             		System.out.println("login permit");
-            		return "permit";
+            		return "permit"; //ãƒ­ã‚°ã‚¤ãƒ³ã‚’è¨±å¯ã™ã‚‹
             	}
+
               }
             }catch(EOFException e){
     		}
-            finally{
-            }
-
-
 		}catch(Exception e){
 
 		}
-   		System.out.println("No permit");
+   		//ä¸€è‡´ã—ãªã‹ã£ãŸã‚‰ã€è¨±å¯ã—ãªã„
+		System.out.println("No permit");
 		return "notPermit";
 	}
 
-	//ƒAƒJƒEƒ“ƒgì¬
-	public String accountCreate(String user_name, String password) {
-
-
+	//ã‚¢ã‚«ã‚¦ãƒ³ãƒˆä½œæˆ
+	public String accountCreate(String user_name, String password, int ThreadNo) {
 		try {
-			//FileInputStreamƒIƒuƒWƒFƒNƒg‚Ì¶¬
+			Player player;
+			//FileInputStreamã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ç”Ÿæˆ
             FileInputStream inFile = new FileInputStream("players.obj");
-
-            //ƒIƒuƒWƒFƒNƒg‚Ì“Ç‚İ‚İ
-            Player player;
 
             try{
             while(true){
-            	//ObjectInputStreamƒIƒuƒWƒFƒNƒg‚Ì¶¬
+            	//ObjectInputStreamã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ç”Ÿæˆ
             	ObjectInputStream inObject = new ObjectInputStream(inFile);
-            	player = (Player)inObject.readObject();
+            	player = (Player)inObject.readObject(); //ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®èª­ã¿è¾¼ã¿
             	System.out.println(player.getName());
+
+            	//ã‚‚ã—ã€åŒã˜åå‰ã®ãƒ¦ãƒ¼ã‚¶ãŒæ—¢ã«å­˜åœ¨ã—ã¦ã„ã‚‹ãªã‚‰
             	if(player.getName().equals(user_name)){
             		inObject.close();
             		System.out.println("false");
-            		return "notPermit";
+            		return "notPermit"; //ã‚¢ã‚«ã‚¦ãƒ³ãƒˆä½œæˆã‚’ä¸è¨±å¯ã¨ã™ã‚‹
             	}
              }
             }catch(EOFException e){
     		}
-            
-            //FileOutputStreamƒIƒuƒWƒFƒNƒg‚Ì¶¬
-            FileOutputStream outFile = new FileOutputStream("players.obj",true);
-            //ObjectOutputStreamƒIƒuƒWƒFƒNƒg‚Ì¶¬
-            ObjectOutputStream outObject = new ObjectOutputStream(outFile);
-            //ƒNƒ‰ƒXHello‚ÌƒIƒuƒWƒFƒNƒg‚Ì‘‚«‚İ
-            outObject.writeObject(new Player(user_name,password));
 
+            //åå‰ã®é‡è¤‡ãŒãªãã€æ–°è¦ã‚¢ã‚«ã‚¦ãƒ³ãƒˆãŒä½œæˆã§ãã‚‹ãªã‚‰â†“â†“â†“
+
+            //FileOutputStreamã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ç”Ÿæˆ
+            FileOutputStream outFile = new FileOutputStream("players.obj",true);
+            //ObjectOutputStreamã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ç”Ÿæˆ
+            ObjectOutputStream outObject = new ObjectOutputStream(outFile);
+
+            //ã‚¯ãƒ©ã‚¹Playerã®ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®æ›¸ãè¾¼ã¿
+            player = new Player(user_name,password);
+            outObject.writeObject(player);
+            receiveThread[ThreadNo].player=player;
             outObject.close();
        }
        catch(Exception e) {
     	   e.printStackTrace();
        }
+		//ã‚¢ã‚«ã‚¦ãƒ³ãƒˆä½œæˆã®è¨±å¯
 		System.out.println("true");
         return "permit";
 	}
 
-	//Player‚Ì‘Îí¬Ñ‚ğ‘—M
+	//Playerã®å¯¾æˆ¦æˆç¸¾ã‚’é€ä¿¡
 	public Player playerInfo(String user_name) {
-		//PlayerƒIƒuƒWƒFƒNƒg‚ğŠi”[‚·‚é•Ï”
+		//Playerã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’æ ¼ç´ã™ã‚‹å¤‰æ•°
 		Player player = new Player("dammy", "dammy");
 
         try{
-        	//FileInputStreamƒIƒuƒWƒFƒNƒg‚Ì¶¬
+        	//FileInputStreamã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ç”Ÿæˆ
             FileInputStream inFile = new FileInputStream("players.obj");
 
-       //ŠY“–‚·‚éƒIƒuƒWƒFƒNƒg‚ğ’Tõ
+       //è©²å½“ã™ã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’æ¢ç´¢
        while(true){
-        	//ObjectInputStreamƒIƒuƒWƒFƒNƒg‚Ì¶¬
+        	//ObjectInputStreamã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ç”Ÿæˆ
         	ObjectInputStream inObject = new ObjectInputStream(inFile);
-        	player = (Player)inObject.readObject(); //“Ç‚İ‚İ
+        	player = (Player)inObject.readObject(); //èª­ã¿è¾¼ã¿
         	System.out.println(player.getName());
         	if(player.getName().equals(user_name)){
         		inObject.close();
@@ -254,107 +295,102 @@ public class Server {
         }
         catch(Exception e){
 		}
-       return player; //ƒIƒuƒWƒFƒNƒg‚ğƒŠƒ^[ƒ“AƒNƒ‰ƒCƒAƒ“ƒg‚Ö‘—‚éB
+       return player; //ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ãƒªã‚¿ãƒ¼ãƒ³ã€ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆã¸é€ã‚‹ã€‚
 	}
 
-	//ƒNƒ‰ƒCƒAƒ“ƒgÚ‘±ó‘Ô‚ÌŠm”F
+	//ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆæ¥ç¶šçŠ¶æ…‹ã®ç¢ºèª
 	public void printStatus(){
 		int i=0;
 		while(i<=online.length) {
 			if(online[i]==true)
-				System.out.println("PlayerNo"+i+"‚ÍƒIƒ“ƒ‰ƒCƒ“ó‘Ô‚Å‚·");
+				System.out.println("PlayerNo"+i+"ã¯ã‚ªãƒ³ãƒ©ã‚¤ãƒ³çŠ¶æ…‹ã§ã™");
 			else if(online[i]==false)
-				System.out.println("PlayerNo"+i+"‚ÍƒIƒtƒ‰ƒCƒ“ó‘Ô‚Å‚·");
+				System.out.println("PlayerNo"+i+"ã¯ã‚ªãƒ•ãƒ©ã‚¤ãƒ³çŠ¶æ…‹ã§ã™");
 		}
 	}
 
-	//ƒf[ƒ^XV
+	//ãƒ‡ãƒ¼ã‚¿æ›´æ–°
 	public void dataUpdate(String user_name, String result) {
 		Player player;
 		ObjectInputStream inObject;
 		ArrayList<Player> arr = new ArrayList<Player>();
         try{
-        	//FileInputStreamƒIƒuƒWƒFƒNƒg‚Ì¶¬
+        	//FileInputStreamã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ç”Ÿæˆ
             FileInputStream inFile = new FileInputStream("players.obj");
-            //ƒf[ƒ^XV‚ğ‚·‚éƒIƒuƒWƒFƒNƒg‚ğ’T‚·
+            //ãƒ‡ãƒ¼ã‚¿æ›´æ–°ã‚’ã™ã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’æ¢ã™
             while(true){
-            	//ObjectInputStreamƒIƒuƒWƒFƒNƒg‚Ì¶¬
+            	//ObjectInputStreamã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ç”Ÿæˆ
             	inObject = new ObjectInputStream(inFile);
-            	player = (Player)inObject.readObject(); //“Ç‚İ‚İ
-            	
+            	player = (Player)inObject.readObject(); //èª­ã¿è¾¼ã¿
+
             	System.out.println(player.getName());
             	System.out.println(player.getWin());
             	if(player.getName().equals("user2")){
-               		//Œ‹‰Ê‚É‰‚¶‚Äƒf[ƒ^‚ğXV
-               		if(result=="win"){
+               		//çµæœã«å¿œã˜ã¦ãƒ‡ãƒ¼ã‚¿ã‚’æ›´æ–°
+               		if(result.equals("win")){
                			player.setWin(player.getWin()+1);
-               		}else if(result=="lose"){
+               		}else if(result.equals("lose")){
                			player.setDefeat(player.getDefeat()+1);
 
-               		}else if(result=="draw"){
+               		}else if(result.equals("draw")){
                			player.setDraw(player.getDraw()+1);
 
-               		}else if(result=="surrender"){
+               		}else if(result.equals("surrender")){
                			player.setSurrender(player.getSurrender()+1);
                		}
-                      	}
+            	}
             	arr.add(player);
             }
-   
-         }catch(Exception e){ 
-        } finally{
-        	 System.out.println("’†ŠÔ");
-        }
-        
+
+         }catch(Exception e){
+         }
+
         try{
-           	int i=0;
+           	boolean flag=false;
             for(Player p : arr){
-            	if(i==0){
+            	if(flag==false){
                     FileOutputStream outFile1 = new FileOutputStream("players.obj");
-                    //FileOutputStreamƒIƒuƒWƒFƒNƒg‚Ì¶¬
+                    //FileOutputStreamã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ç”Ÿæˆ
                    	ObjectOutputStream outObject1 = new ObjectOutputStream(outFile1);
-            		outObject1.writeObject(p);  
-            		i++;
+            		outObject1.writeObject(p);
+            		flag=true;
             	}
             	else{
-                    //FileOutputStreamƒIƒuƒWƒFƒNƒg‚Ì¶¬
+                    //FileOutputStreamã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ç”Ÿæˆ
                     FileOutputStream outFile2 = new FileOutputStream("players.obj",true);
-                    //FileOutputStreamƒIƒuƒWƒFƒNƒg‚Ì¶¬
+                    //FileOutputStreamã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã®ç”Ÿæˆ
                    	ObjectOutputStream outObject2 = new ObjectOutputStream(outFile2);
-                     		outObject2.writeObject(p);  
+                    outObject2.writeObject(p);
 
             	}
-            	
             	System.out.println(p.getName());
             }
-          
-                
-               	
-            }catch(Exception e){
-        	
+        }catch(Exception e){
         }
 	}
 
-	/*//‘Î‹Ç‘Ò‚¿ó‘Ôó•t and ‘ÎíÒƒŠƒXƒg“]‘—
+	/*//å¯¾å±€å¾…ã¡çŠ¶æ…‹å—ä»˜ and å¯¾æˆ¦è€…ãƒªã‚¹ãƒˆè»¢é€
 	public void sendList(){
 
 	}*/
 
-	//‘Î‹Ç\‚µ‚İ“]‘—
-	public void requestGame(int opponent,){
-		game_online_list.get(opponent);
+	//å¯¾å±€ç”³ã—è¾¼ã¿è»¢é€
+	public void requestGame(int opponent,String applier_list_num){
+//		game_online_list.get(opponent);
 		receiveThread[opponent].sendMessage("requestGame");
+		receiveThread[opponent].sendMessage(applier_list_num);
 	}
 
-	//‘€ìî•ñ‚ğ“]‘—
-	public void forwardMessage(String msg, int playerNo) {
-
+	//æ“ä½œæƒ…å ±ã‚’è»¢é€
+	public void forwardMessage(String msg1, String msg2, int ThreadNo) {
+		receiveThread[ThreadNo].sendMessage(msg1);
+		receiveThread[ThreadNo].sendMessage(msg2);
 	}
 
 	public static void main(String[] args) {
-		// TODO ©“®¶¬‚³‚ê‚½ƒƒ\ƒbƒhEƒXƒ^ƒu
-		Server server = new Server(10005); //‘Ò‚¿ó‚¯ƒ|[ƒg10000”Ô‚ÅƒT[ƒoƒIƒuƒWƒFƒNƒg‚ğ€”õ
-		server.acceptClient(); //ƒNƒ‰ƒCƒAƒ“ƒgó‚¯“ü‚ê‚ğŠJn
+		// TODO è‡ªå‹•ç”Ÿæˆã•ã‚ŒãŸãƒ¡ã‚½ãƒƒãƒ‰ãƒ»ã‚¹ã‚¿ãƒ–
+		Server server = new Server(10005); //å¾…ã¡å—ã‘ãƒãƒ¼ãƒˆ10000ç•ªã§ã‚µãƒ¼ãƒã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’æº–å‚™
+		server.acceptClient(); //ã‚¯ãƒ©ã‚¤ã‚¢ãƒ³ãƒˆå—ã‘å…¥ã‚Œã‚’é–‹å§‹
 	}
 
 }
