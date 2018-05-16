@@ -1,11 +1,11 @@
 package othello;
 
-public class Othello_v5 {
+public class Othello {
   private int row = 8; //オセロの縦横のマスの数
   private int[] grids = new int[row*row]; //局面情報--何も置かれていない:0 黒:1 白:2
   private String turn; //手番(black,white)
 
-  public Othello_v5() { //コンストラクタ
+  public Othello() { //コンストラクタ
     turn = "black";  //先手は黒
     for(int i=0; i < row*row; i++ ) {
       grids[i] = 0;
@@ -36,13 +36,55 @@ public class Othello_v5 {
       return "draw";             //"draw"を返す
     }
   }
+  
+  public void clearboard() {
+	  turn = "black";  //先手は黒
+	    for(int i=0; i < row*row; i++ ) {
+	      grids[i] = 0;
+	    }
+	    int center = row*row/2;  //つまり32
+	    grids[center - row/2 - 1] = 1;  //黒
+	    grids[center + row/2    ] = 1;  //黒
+	    grids[center - row/2    ] = 2;  //白
+	    grids[center + row/2 - 1] = 2;  //白
+  }
+  
+  public int black() {
+	  int count = 0;
+	  
+	  for(int k=0;k<63;k++) {
+		  if(grids[k] == 1) {
+			  count++;
+		  }
+	  }
+	  
+	  return count;
+  }
+  
+  public int white() {
+	  int count = 0;
+	  
+	  for(int k=0;k<63;k++) {
+		  if(grids[k] == 2) {
+			  count++;
+		  }
+	  }
+	  
+	  return count;
+  }
 
   public String getTurn() {  //手番を取得--"black","white"を返す
     return turn;
   }
 
-  public void setGrids(int[] grids) {  //局面に操作をくわえる
-    this.grids = grids;
+  public void setGrids(int grid,String color) {  //局面に操作をくわえる
+    if(color.equals("black")) {
+    		grids[grid] = 1;
+    }
+    if(color.equals("white")) {
+		grids[grid] = 2;
+}
+    
   }
 
   public int[] getGrids() {  //局面情報を取得
@@ -622,7 +664,7 @@ public class Othello_v5 {
         return false;
       }
     }
-    Sysmte.out.println("石を置けるマスがありません。" + color + "の番をとばします");
+    System.out.println("石を置けるマスがありません。" + color + "の番をとばします");
     return true;
   }
 
