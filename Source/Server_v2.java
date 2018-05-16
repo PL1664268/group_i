@@ -20,7 +20,7 @@ public class Server {
 	private int port; //ポート番号
 	private boolean [] online; //クライアント接続状態
 	ArrayList<Player> game_online_list = new ArrayList<Player>(); //対戦待ち状態のArrayList
-	Receiver receiveThread[] = new Receiver[MAX];      // チャットクラス配列
+	Receiver receiveThread[] = new Receiver[MAX];  // 受信クラス配列、スレッドの配列
 
 	//コンストラクタ
 	public Server(int port) { //待ち受けポートを引数とする
@@ -33,19 +33,21 @@ public class Server {
 		private InputStreamReader sisr; //受信データ用文字ストリーム
 		private BufferedReader br; //文字ストリーム用のバッファ
 		private PrintWriter out; //データ送信用オブジェクト
+		private ObjectInputStream ois;
 		private int ThreadNo; //プレイヤを識別するための番号,スレッド番号
 		private Player player = new Player("dammy", "dammy"); //playerオブジェクト
-		private boolean flag = false;
-		private String user_name;
-		HashMap<Player,Player> map = new HashMap<Player,Player>();
+		private boolean flag = false; //対局待ちリストのためのフラグ。1回目と2回目以降の要求で処理が変わる。
+		private String user_name; //このスレッドを利用しているユーザ名
+		HashMap<Player,Player> map = new HashMap<Player,Player>(); //対戦中の相手と紐づけるためのHashMap
 
 		//内部クラスReceiverのコンストラクタ
 		Receiver (Socket socket, Server server, int ThreadNo){
 			try{
-				this.ThreadNo = ThreadNo; //プレイヤ番号を渡す
+				this.ThreadNo = ThreadNo; //Thread番号を渡す
 				sisr = new InputStreamReader(socket.getInputStream());
-				br = new BufferedReader(sisr); //
-				out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
+				br = new BufferedReader(sisr); //入力ストリームを作成
+				out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream())); //出力ストリームを作成
+				ois = new ObjectInputStream(socket.getInputStream()); //出力ストリームを作成
 				System.out.println(ThreadNo+"がせつぞくしました");
 			} catch (IOException e) {
 				System.err.println("データ受信時にエラーが発生しました: " + e);
@@ -105,11 +107,15 @@ public class Server {
 						//データ更新のリクエストなら
 						else if(inputLine.equals("dataUpdate")){
 							//ユーザ名と結果を受け取り、データを更新
-							String user_name = br.readLine();
-							String result = br.readLine();
-							System.out.println(user_name);
-							System.out.println(result);
-							dataUpdate(user_name, result);
+							Player newPlayer;
+							try {
+								newPlayer = (Player)ois.readObject();
+								dataUpdate(newPlayer);
+							} catch (ClassNotFoundException e) {
+								// TODO 自動生成された catch ブロック
+								e.printStackTrace();
+							}
+
 						}
 						//対局待ち状態のリストのリクエストなら
 						else if(inputLine.equals("otherPlayerRequest")){
@@ -118,10 +124,14 @@ public class Server {
 								//自分自身を待ち状態リストに入れ、リストを送る
 								game_online_list.add(player);
 								out.println(game_online_list);
+								out.flush();
 								flag=true;
 							}
 							//updateによる再送信のリクエストなら
-							else 	out.println(game_online_list); //現在の待ち状態リストを送る
+							else{
+								out.println(game_online_list); //現在の待ち状態リストを送る
+								out.flush();
+							}
 						}
 						//他者への対局申し込みなら
 						else if(inputLine.equals("requestGame")){
@@ -155,7 +165,7 @@ public class Server {
 				}
 			} catch (IOException e){ // 接続が切れたとき
 				System.err.println("プレイヤ " + ThreadNo + "との接続が切れました．");
-				game_online_list.remove(game_online_list.indexOf(player));
+				game_online_list.remove(game_online_list.indexOf(player)); //対局待ち状態リストから削除する
 				online[ThreadNo] = false; //プレイヤの接続状態を更新する
 				flag=false;
 				printStatus(); //接続状態を出力する
@@ -310,7 +320,7 @@ public class Server {
 	}
 
 	//データ更新
-	public void dataUpdate(String user_name, String result) {
+	public void dataUpdate(Player newPlayer) {
 		Player player;
 		ObjectInputStream inObject;
 		ArrayList<Player> arr = new ArrayList<Player>();
@@ -322,23 +332,10 @@ public class Server {
             	//ObjectInputStreamオブジェクトの生成
             	inObject = new ObjectInputStream(inFile);
             	player = (Player)inObject.readObject(); //読み込み
-
             	System.out.println(player.getName());
-            	System.out.println(player.getWin());
             	if(player.getName().equals("user2")){
-               		//結果に応じてデータを更新
-               		if(result.equals("win")){
-               			player.setWin(player.getWin()+1);
-               		}else if(result.equals("lose")){
-               			player.setDefeat(player.getDefeat()+1);
-
-               		}else if(result.equals("draw")){
-               			player.setDraw(player.getDraw()+1);
-
-               		}else if(result.equals("surrender")){
-               			player.setSurrender(player.getSurrender()+1);
-               		}
-            	}
+            	player = newPlayer;
+		}
             	arr.add(player);
             }
 
