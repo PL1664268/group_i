@@ -45,6 +45,7 @@ public class Client extends JFrame implements MouseListener {
 	private String mycolor;
 	ArrayList<Player> playerlist = new ArrayList<Player>();
 	private int playernumber;
+	private int arraysize; //オンライン人数
 	
 	int row = 8; //getRowメソッドによりオセロ盤の縦横マスの数を取得
 	JPanel Board = new JPanel();
@@ -163,7 +164,7 @@ public class Client extends JFrame implements MouseListener {
 		
 		login.addActionListener(new ActionListener() { // ログインボタンを押した時の処理
 			 public void actionPerformed(ActionEvent as) {
-				 boolean connectresult = connectServer("localhost", 10023);
+				 boolean connectresult = connectServer("localhost", 10026);
 				 if( connectresult == false) {
 					 serverfailed.setText("Could not connect to the server!");
 				 }
@@ -356,7 +357,7 @@ public class Client extends JFrame implements MouseListener {
 					 passwordfailed.setText("Mismatch");
 				 }
 				 if(passstring2.equals(passstring1)) {
-					 boolean connectresult = connectServer("localhost", 10023);
+					 boolean connectresult = connectServer("localhost", 10026);
 					 if( connectresult == false) {
 						 serverfailed.setText("Could not connect to the server!");
 					 }
@@ -546,86 +547,102 @@ public class Client extends JFrame implements MouseListener {
 		JButton play[] = new JButton[8];
 		
 		//本来はLabelの中身はotherPlayer[k].getName()
-		player[0] = new JLabel(otherPlayer[0].getName());
+		player[0] = new JLabel();
 		player[0].setForeground(text);
 		player[0].setFont(new Font("ＭＳ ゴシック", Font.BOLD, 23));
 		player[0].setBounds(70,120,200,30);
 		
-		player[1] = new JLabel(otherPlayer[1].getName());
+		player[1] = new JLabel();
 		player[1].setForeground(text);
 		player[1].setFont(new Font("ＭＳ ゴシック", Font.BOLD, 23));
 		player[1].setBounds(70,170,200,30);
 		
-		player[2] = new JLabel(otherPlayer[2].getName());
+		player[2] = new JLabel();
 		player[2].setForeground(text);
 		player[2].setFont(new Font("ＭＳ ゴシック", Font.BOLD, 23));
 		player[2].setBounds(70,220,200,30);
 		
-		player[3] = new JLabel(otherPlayer[3].getName());
+		player[3] = new JLabel();
 		player[3].setForeground(text);
 		player[3].setFont(new Font("ＭＳ ゴシック", Font.BOLD, 23));
 		player[3].setBounds(70,270,200,30);
 		
-		player[4] = new JLabel(otherPlayer[4].getName());
+		player[4] = new JLabel();
 		player[4].setForeground(text);
 		player[4].setFont(new Font("ＭＳ ゴシック", Font.BOLD, 23));
 		player[4].setBounds(70,320,200,30);
 		
-		player[5] = new JLabel(otherPlayer[5].getName());
+		player[5] = new JLabel();
 		player[5].setForeground(text);
 		player[5].setFont(new Font("ＭＳ ゴシック", Font.BOLD, 23));
 		player[5].setBounds(70,370,200,30);
 		
-		player[6] = new JLabel(otherPlayer[6].getName());
+		player[6] = new JLabel();
 		player[6].setForeground(text);
 		player[6].setFont(new Font("ＭＳ ゴシック", Font.BOLD, 23));
 		player[6].setBounds(70,420,200,30);
 		
-		player[7] = new JLabel(otherPlayer[7].getName());
+		player[7] = new JLabel();
 		player[7].setForeground(text);
 		player[7].setFont(new Font("ＭＳ ゴシック", Font.BOLD, 23));
 		player[7].setBounds(70,470,200,30);
 		
+		//名前の設定
+		for(int i = 0;i<arraysize;i++) {
+			if(!(otherPlayer[i].getName().equals(myPlayer.getName()))) {
+				player[i].setText(otherPlayer[i].getName());
+			}
+			System.out.println(i+1 + ":" + player[i].getText());
+		}
+		
 		//本来はLabelの中身はotherPlayer[k].getRate
-		rate[0] = new JLabel("200");
+		rate[0] = new JLabel();
 		rate[0].setForeground(text);
 		rate[0].setFont(new Font("ＭＳ ゴシック", Font.BOLD, 23));
 		rate[0].setBounds(290,120,200,30);
 		
-		rate[1] = new JLabel("200");
+		rate[1] = new JLabel();
 		rate[1].setForeground(text);
 		rate[1].setFont(new Font("ＭＳ ゴシック", Font.BOLD, 23));
 		rate[1].setBounds(290,170,200,30);
 		
-		rate[2] = new JLabel("200");
+		rate[2] = new JLabel();
 		rate[2].setForeground(text);
 		rate[2].setFont(new Font("ＭＳ ゴシック", Font.BOLD, 23));
 		rate[2].setBounds(290,220,200,30);
 		
-		rate[3] = new JLabel("200");
+		rate[3] = new JLabel();
 		rate[3].setForeground(text);
 		rate[3].setFont(new Font("ＭＳ ゴシック", Font.BOLD, 23));
 		rate[3].setBounds(290,270,200,30);
 		
-		rate[4] = new JLabel("200");
+		rate[4] = new JLabel();
 		rate[4].setForeground(text);
 		rate[4].setFont(new Font("ＭＳ ゴシック", Font.BOLD, 23));
 		rate[4].setBounds(290,320,200,30);
 		
-		rate[5] = new JLabel("200");
+		rate[5] = new JLabel();
 		rate[5].setForeground(text);
 		rate[5].setFont(new Font("ＭＳ ゴシック", Font.BOLD, 23));
 		rate[5].setBounds(290,370,200,30);
 		
-		rate[6] = new JLabel("200");
+		rate[6] = new JLabel();
 		rate[6].setForeground(text);
 		rate[6].setFont(new Font("ＭＳ ゴシック", Font.BOLD, 23));
 		rate[6].setBounds(290,420,200,30);
 		
-		rate[7] = new JLabel("200");
+		rate[7] = new JLabel();
 		rate[7].setForeground(text);
 		rate[7].setFont(new Font("ＭＳ ゴシック", Font.BOLD, 23));
 		rate[7].setBounds(290,470,200,30);
+		
+		//レートの設定
+		for(int i = 0;i<arraysize;i++) {
+			if(!(otherPlayer[i].getName().equals(myPlayer.getName()))) {
+				rate[i].setText(String.valueOf(otherPlayer[i].getRate()));
+			}
+			System.out.println(i+1 + "のレート:" + rate[i].getText());
+		}
 		
 		play[0] = new JButton("Apply");
 		play[0].setForeground(text);
@@ -736,14 +753,13 @@ public class Client extends JFrame implements MouseListener {
 		matching.add(rate[5]);
 		matching.add(rate[6]);
 		matching.add(rate[7]);
-		matching.add(play[0]);
-		matching.add(play[1]);
-		matching.add(play[2]);
-		matching.add(play[3]);
-		matching.add(play[4]);
-		matching.add(play[5]);
-		matching.add(play[6]);
-		matching.add(play[7]);
+		
+		//ボタンの表示
+		for(int i = 0;i<arraysize;i++) {
+			if(!(otherPlayer[i].getName().equals(myPlayer.getName()))) {
+				matching.add(play[i]);
+			}
+		}
 		matching.add(title);
 		matching.add(update);
 		matching.add(returntohome);
@@ -926,14 +942,35 @@ public class Client extends JFrame implements MouseListener {
 				    } catch(IOException e) {
 				      System.out.println(e);
 				    }
-				 
 			 }
 		});
 		
 		update.addActionListener(new ActionListener() { // 更新ボタンを押した時の処理
 			 public void actionPerformed(ActionEvent as) {
-				 otherPlayerRequest();
-				 matching.repaint();
+				playerlist.clear();
+				System.out.println("ArrayListが初期化されたよ");
+				otherPlayerRequest();
+				//名前の設定
+				for(int i = 0;i<arraysize;i++) {
+					if(!(otherPlayer[i].getName().equals(myPlayer.getName()))) {
+						player[i].setText(otherPlayer[i].getName());
+					}
+					System.out.println(i+1 + ":" + player[i].getText());
+				}
+				//レートの設定
+				for(int i = 0;i<arraysize;i++) {
+					if(!(otherPlayer[i].getName().equals(myPlayer.getName()))) {
+						rate[i].setText(String.valueOf(otherPlayer[i].getRate()));
+					}
+					System.out.println(i+1 + "のレート:" + rate[i].getText());
+				}
+				//ボタンの表示
+				for(int i = 0;i<arraysize;i++) {
+					if(!(otherPlayer[i].getName().equals(myPlayer.getName()))) {
+						matching.add(play[i]);
+					}
+				}
+				matching.repaint();
 			 }
 		});
 		
@@ -958,20 +995,25 @@ public class Client extends JFrame implements MouseListener {
 	      out.flush();
 	      
 	      playerlist = (ArrayList<Player>)(ois.readObject());
-	    
-	     
+	      otherPlayer = (Player[])playerlist.toArray(new Player[0]);
 	      
+	      arraysize = Integer.parseInt(in.readLine());
+		  System.out.println("test2");
+		  System.out.println(otherPlayer[0].getName());
+		  System.out.println("変換できたよ");
+		  System.out.println("オンライン人数" + arraysize);
+		  
+		  for(int i=0;i<arraysize;i++) {
+			  System.out.println("otheplayer[" + i + "]:" + otherPlayer[i].getName());
+		  }
+
 	      //out.close();
 	      //ois.close();
 	    }catch(Exception e) {
 	      System.out.println(e);
 	     // System.exit(1);
 	    }finally{
-	    otherPlayer = (Player[])playerlist.toArray(new Player[0]);
-	    System.out.println("test2");
-	    System.out.println(otherPlayer[0].getName());
-	    System.out.println("変換できたよ");
-	    System.out.println(otherPlayer[1].getName());
+	   
 	  }}
 	  
 	 
@@ -1005,6 +1047,7 @@ public class Client extends JFrame implements MouseListener {
 	            		 playernumber = Integer.parseInt(in.readLine());
 	            		 matching.add(Yes);
 	            		 matching.add(No);
+	            		 matching.repaint();
 	              //他プレイヤーからの申し込み
 	            }  else if(in.equals("Anser")) {
 	            		if(in.equals("OK")) {
