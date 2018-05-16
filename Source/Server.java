@@ -139,13 +139,15 @@ public class Server {
 								game_online_list.add(player);
 								oos.writeObject(game_online_list);
 								oos.flush();
+								out.println(String.valueOf(game_online_list.size()));
+								out.flush();
 								System.out.println("ArrayList送信済み");
 								flag=true;
 							}
 							//updateによる再送信のリクエストなら
 							else{
-								out.println(game_online_list); //現在の待ち状態リストを送る
-								out.flush();
+								oos.writeObject(game_online_list); //現在の待ち状態リストを送る
+								oos.flush();
 							}
 						}
 						//他者への対局申し込みなら
@@ -402,7 +404,7 @@ public class Server {
 
 	public static void main(String[] args) {
 		// TODO 自動生成されたメソッド・スタブ
-		Server server = new Server(10023); //待ち受けポート10000番でサーバオブジェクトを準備
+		Server server = new Server(10026); //待ち受けポート10000番でサーバオブジェクトを準備
 		server.acceptClient(); //クライアント受け入れを開始
 	}
 
