@@ -106,12 +106,12 @@ public class Server {
 								Player player = playerInfo(user_name);
 								player.ThreadNo=ThreadNo;
 								System.out.println("Playerオブジェクト作成");
-								out.close();
+								//out.close();
 								oos = new ObjectOutputStream(socket.getOutputStream());
 								oos.writeObject(player);
 								oos.flush();
-								oos.close();
-								out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
+								//oos.close();
+								//out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
 								System.out.println("server message sent 3");
 						}
 						//データ更新のリクエストなら
@@ -179,7 +179,7 @@ public class Server {
 				}
 			} catch (IOException e){ // 接続が切れたとき
 				System.err.println("プレイヤ " + ThreadNo + "との接続が切れました．");
-				System.out.println(e);
+				e.printStackTrace();
 				game_online_list.remove(game_online_list.indexOf(player)); //対局待ち状態リストから削除する
 				online[ThreadNo] = false; //プレイヤの接続状態を更新する
 				flag=false;
@@ -401,7 +401,7 @@ public class Server {
 
 	public static void main(String[] args) {
 		// TODO 自動生成されたメソッド・スタブ
-		Server server = new Server(10013); //待ち受けポート10000番でサーバオブジェクトを準備
+		Server server = new Server(10021); //待ち受けポート10000番でサーバオブジェクトを準備
 		server.acceptClient(); //クライアント受け入れを開始
 	}
 
