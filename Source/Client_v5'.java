@@ -35,7 +35,6 @@ public class Client extends JFrame implements MouseListener {
 	private JLabel turnLabel; // 手番表示用ラベル
 	private ImageIcon blackIcon, whiteIcon, boardIcon; //アイコン
 	private PrintWriter out;//データ送信用オブジェクト
-	private Receiver receiver; //データ受信用オブジェクト
 	private Othello game; //Othelloオブジェクト
 	private Player myPlayer;  //自分のPlayerクラスのインスタンス変数
 	private Player player; //Playerオブジェクト
@@ -164,7 +163,7 @@ public class Client extends JFrame implements MouseListener {
 		
 		login.addActionListener(new ActionListener() { // ログインボタンを押した時の処理
 			 public void actionPerformed(ActionEvent as) {
-				 boolean connectresult = connectServer("localhost", 10005);
+				 boolean connectresult = connectServer("localhost", 10013);
 				 if( connectresult == false) {
 					 serverfailed.setText("Could not connect to the server!");
 				 }
@@ -357,7 +356,7 @@ public class Client extends JFrame implements MouseListener {
 					 passwordfailed.setText("Mismatch");
 				 }
 				 if(passstring2.equals(passstring1)) {
-					 boolean connectresult = connectServer("localhost", 10005);
+					 boolean connectresult = connectServer("localhost", 10013);
 					 if( connectresult == false) {
 						 serverfailed.setText("Could not connect to the server!");
 					 }
@@ -368,7 +367,9 @@ public class Client extends JFrame implements MouseListener {
 							 newaccountfailed.setText("This name is unavailable");
 						 }
 						 if (flag ==true) {
+							 System.out.println("プレイヤーオブジェクト未受信");
 							 myPlayerRequest();
+							 System.out.println("プレイヤーオブジェクト受信");
 							 playername = myPlayer.getName();
 							 userhome();
 							 p.removeAll();
@@ -402,7 +403,7 @@ public class Client extends JFrame implements MouseListener {
 	      } else {
 	        System.out.println("確認とは別の文字列です。");  //別の文字列が送られてきた
 	      }
-	      out.close();
+	      //out.close();
 	      in.close();
 	    }catch(IOException e) {
 	      System.out.println(e);
@@ -1175,10 +1176,16 @@ public class Client extends JFrame implements MouseListener {
 	//プレイヤー情報受付
 	  public void myPlayerRequest() {
 	    try {
-	      out = new PrintWriter(new OutputStreamWriter(soc.getOutputStream()));
+	    	System.out.println("send myPR1");
+	      //out = new PrintWriter(new OutputStreamWriter(soc.getOutputStream()));
+	    	out.println("myPlayerRequest");
+	    	out.flush();
+	    	System.out.println("send myPR1 end");
 	      ois = new ObjectInputStream(soc.getInputStream());
-	      out.println("myPlayerRequest");
-	      out.flush();
+	      
+	      
+	      System.out.println("send myPR2");
+	      System.out.println("未受信２");
 	      myPlayer = (Player)(ois.readObject());
 	      out.close();
 	      ois.close();
@@ -1293,35 +1300,6 @@ public class Client extends JFrame implements MouseListener {
 		out.println(msg);//送信データをバッファに書き出す
 		out.flush();//送信データを送る
 		System.out.println("サーバにメッセージ " + msg + " を送信しました"); //テスト標準出力
-	}
-
-	// データ受信用スレッド(内部クラス)
-	class Receiver extends Thread {
-		private InputStreamReader sisr; //受信データ用文字ストリーム
-		private BufferedReader br; //文字ストリーム用のバッファ
-
-		// 内部クラスReceiverのコンストラクタ
-		Receiver (Socket socket){
-			try{
-				sisr = new InputStreamReader(socket.getInputStream()); //受信したバイトデータを文字ストリームに
-				br = new BufferedReader(sisr);//文字ストリームをバッファリングする
-			} catch (IOException e) {
-				System.err.println("データ受信時にエラーが発生しました: " + e);
-			}
-		}
-		// 内部クラス Receiverのメソッド
-		public void run(){
-			try{
-				while(true) {//データを受信し続ける
-					String inputLine = br.readLine();//受信データを一行分読み込む
-					if (inputLine != null){//データを受信したら
-						receiveMessage(inputLine);//データ受信用メソッドを呼び出す
-					}
-				}
-			} catch (IOException e){
-				System.err.println("データ受信時にエラーが発生しました: " + e);
-			}
-		}
 	}
 
 	public void receiveMessage(String msg){	// メッセージの受信
@@ -1582,7 +1560,7 @@ public class Client extends JFrame implements MouseListener {
 		
 		Othello game = new Othello();
 		Client client = new Client(game);
-		client.playothello();
+		client.Login();
 	}
 
 	
