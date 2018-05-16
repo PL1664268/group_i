@@ -163,7 +163,7 @@ public class Client extends JFrame implements MouseListener {
 		
 		login.addActionListener(new ActionListener() { // ログインボタンを押した時の処理
 			 public void actionPerformed(ActionEvent as) {
-				 boolean connectresult = connectServer("localhost", 10022);
+				 boolean connectresult = connectServer("localhost", 10023);
 				 if( connectresult == false) {
 					 serverfailed.setText("Could not connect to the server!");
 				 }
@@ -356,7 +356,7 @@ public class Client extends JFrame implements MouseListener {
 					 passwordfailed.setText("Mismatch");
 				 }
 				 if(passstring2.equals(passstring1)) {
-					 boolean connectresult = connectServer("localhost", 10021);
+					 boolean connectresult = connectServer("localhost", 10023);
 					 if( connectresult == false) {
 						 serverfailed.setText("Could not connect to the server!");
 					 }
@@ -481,8 +481,8 @@ public class Client extends JFrame implements MouseListener {
 		
 		playgame.addActionListener(new ActionListener() { // 対局ボタンを押した時の処理
 			 public void actionPerformed(ActionEvent as) {
-				 gamewaiting();
 				 otherPlayerRequest();
+				 gamewaiting();
 				 new Thread(new ReceiveInvite()).start();
 				 //playothello();
 				 //Board.repaint();
@@ -546,42 +546,42 @@ public class Client extends JFrame implements MouseListener {
 		JButton play[] = new JButton[8];
 		
 		//本来はLabelの中身はotherPlayer[k].getName()
-		player[0] = new JLabel("Player1");
+		player[0] = new JLabel(otherPlayer[0].getName());
 		player[0].setForeground(text);
 		player[0].setFont(new Font("ＭＳ ゴシック", Font.BOLD, 23));
 		player[0].setBounds(70,120,200,30);
 		
-		player[1] = new JLabel("Player2");
+		player[1] = new JLabel(otherPlayer[1].getName());
 		player[1].setForeground(text);
 		player[1].setFont(new Font("ＭＳ ゴシック", Font.BOLD, 23));
 		player[1].setBounds(70,170,200,30);
 		
-		player[2] = new JLabel("Player3");
+		player[2] = new JLabel(otherPlayer[2].getName());
 		player[2].setForeground(text);
 		player[2].setFont(new Font("ＭＳ ゴシック", Font.BOLD, 23));
 		player[2].setBounds(70,220,200,30);
 		
-		player[3] = new JLabel("Player4");
+		player[3] = new JLabel(otherPlayer[3].getName());
 		player[3].setForeground(text);
 		player[3].setFont(new Font("ＭＳ ゴシック", Font.BOLD, 23));
 		player[3].setBounds(70,270,200,30);
 		
-		player[4] = new JLabel("Player5");
+		player[4] = new JLabel(otherPlayer[4].getName());
 		player[4].setForeground(text);
 		player[4].setFont(new Font("ＭＳ ゴシック", Font.BOLD, 23));
 		player[4].setBounds(70,320,200,30);
 		
-		player[5] = new JLabel("Player6");
+		player[5] = new JLabel(otherPlayer[5].getName());
 		player[5].setForeground(text);
 		player[5].setFont(new Font("ＭＳ ゴシック", Font.BOLD, 23));
 		player[5].setBounds(70,370,200,30);
 		
-		player[6] = new JLabel("Player7");
+		player[6] = new JLabel(otherPlayer[6].getName());
 		player[6].setForeground(text);
 		player[6].setFont(new Font("ＭＳ ゴシック", Font.BOLD, 23));
 		player[6].setBounds(70,420,200,30);
 		
-		player[7] = new JLabel("Player8");
+		player[7] = new JLabel(otherPlayer[7].getName());
 		player[7].setForeground(text);
 		player[7].setFont(new Font("ＭＳ ゴシック", Font.BOLD, 23));
 		player[7].setBounds(70,470,200,30);
@@ -952,15 +952,14 @@ public class Client extends JFrame implements MouseListener {
 	    try {
 	      //out = new PrintWriter(new OutputStreamWriter(soc.getOutputStream()));
 	      //ois = new ObjectInputStream(soc.getInputStream());
-	      ArrayList<Player> playerList = new ArrayList<Player>();
+	      //ArrayList<Player> playerList = new ArrayList<Player>();
+	      
 	      out.println("otherPlayerRequest");
 	      out.flush();
 	      
-	     // playerlist = (ArrayList<Player>)(ois.readObject());
+	      playerlist = (ArrayList<Player>)(ois.readObject());
 	    
-	      while(true){
-	    	  playerlist.add((Player)ois.readObject());
-	      }
+	     
 	      
 	      //out.close();
 	      //ois.close();
@@ -968,8 +967,11 @@ public class Client extends JFrame implements MouseListener {
 	      System.out.println(e);
 	     // System.exit(1);
 	    }finally{
-	    otherPlayer = playerlist.toArray(new Player[0]);
+	    otherPlayer = (Player[])playerlist.toArray(new Player[0]);
 	    System.out.println("test2");
+	    System.out.println(otherPlayer[0].getName());
+	    System.out.println("変換できたよ");
+	    System.out.println(otherPlayer[1].getName());
 	  }}
 	  
 	 
