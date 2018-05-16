@@ -163,7 +163,7 @@ public class Client extends JFrame implements MouseListener {
 		
 		login.addActionListener(new ActionListener() { // ログインボタンを押した時の処理
 			 public void actionPerformed(ActionEvent as) {
-				 boolean connectresult = connectServer("localhost", 10013);
+				 boolean connectresult = connectServer("localhost", 10021);
 				 if( connectresult == false) {
 					 serverfailed.setText("Could not connect to the server!");
 				 }
@@ -356,7 +356,7 @@ public class Client extends JFrame implements MouseListener {
 					 passwordfailed.setText("Mismatch");
 				 }
 				 if(passstring2.equals(passstring1)) {
-					 boolean connectresult = connectServer("localhost", 10013);
+					 boolean connectresult = connectServer("localhost", 10021);
 					 if( connectresult == false) {
 						 serverfailed.setText("Could not connect to the server!");
 					 }
@@ -404,7 +404,7 @@ public class Client extends JFrame implements MouseListener {
 	        System.out.println("確認とは別の文字列です。");  //別の文字列が送られてきた
 	      }
 	      //out.close();
-	      in.close();
+	      //in.close();
 	    }catch(IOException e) {
 	      System.out.println(e);
 	    }
@@ -1077,7 +1077,7 @@ public class Client extends JFrame implements MouseListener {
 		title.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 36));
 		title.setBounds(340,20,600,40);
 		
-		JLabel name = new JLabel("Player");
+		JLabel name = new JLabel(myPlayer.getName());
 		name.setForeground(text);
 		name.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 36));
 		name.setBounds(680,10,200,40);
@@ -1090,6 +1090,7 @@ public class Client extends JFrame implements MouseListener {
 		
 		//勝ち数
 		JLabel wincount = new JLabel(String.valueOf(myPlayer.getWin()));
+		System.out.println(String.valueOf(myPlayer.getWin()));
 		wincount.setForeground(text);
 		wincount.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 36));
 		wincount.setBounds(160,130,600,40);
@@ -1154,9 +1155,13 @@ public class Client extends JFrame implements MouseListener {
 		p.add(title);
 		p.add(name);
 		p.add(win);
+		p.add(wincount);
 		p.add(lose);
+		p.add(losecount);
 		p.add(draw);
+		p.add(drawcount);
 		p.add(surrender);
+		p.add(surrendercount);
 		p.add(rate);
 		p.add(returntohome);
 		add(p);
@@ -1183,12 +1188,11 @@ public class Client extends JFrame implements MouseListener {
 	    	System.out.println("send myPR1 end");
 	      ois = new ObjectInputStream(soc.getInputStream());
 	      
-	      
 	      System.out.println("send myPR2");
 	      System.out.println("未受信２");
 	      myPlayer = (Player)(ois.readObject());
-	      out.close();
-	      ois.close();
+	      //out.close();
+	      //ois.close();
 	    }catch(Exception e) {
 	      System.out.println(e);
 	      System.exit(1);
