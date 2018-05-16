@@ -137,8 +137,9 @@ public class Server {
 							if(!flag){
 								//自分自身を待ち状態リストに入れ、リストを送る
 								game_online_list.add(player);
-								out.println(game_online_list);
-								out.flush();
+								oos.writeObject(game_online_list);
+								oos.flush();
+								System.out.println("ArrayList送信済み");
 								flag=true;
 							}
 							//updateによる再送信のリクエストなら
@@ -401,7 +402,7 @@ public class Server {
 
 	public static void main(String[] args) {
 		// TODO 自動生成されたメソッド・スタブ
-		Server server = new Server(10021); //待ち受けポート10000番でサーバオブジェクトを準備
+		Server server = new Server(10023); //待ち受けポート10000番でサーバオブジェクトを準備
 		server.acceptClient(); //クライアント受け入れを開始
 	}
 
