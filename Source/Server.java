@@ -34,20 +34,23 @@ public class Server {
 		private BufferedReader br; //文字ストリーム用のバッファ
 		private PrintWriter out; //データ送信用オブジェクト
 		private ObjectInputStream ois;
+		private ObjectOutputStream oos;
 		private int ThreadNo; //プレイヤを識別するための番号,スレッド番号
 		private Player player = new Player("dammy", "dammy"); //playerオブジェクト
 		private boolean flag = false; //対局待ちリストのためのフラグ。1回目と2回目以降の要求で処理が変わる。
 		private String user_name; //このスレッドを利用しているユーザ名
+		Socket socket;
 		HashMap<Player,Player> map = new HashMap<Player,Player>(); //対戦中の相手と紐づけるためのHashMap
 
 		//内部クラスReceiverのコンストラクタ
 		Receiver (Socket socket, Server server, int ThreadNo){
 			try{
+				this.socket=socket;
 				this.ThreadNo = ThreadNo; //Thread番号を渡す
 				sisr = new InputStreamReader(socket.getInputStream());
 				br = new BufferedReader(sisr); //入力ストリームを作成
 				out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream())); //出力ストリームを作成
-				ois = new ObjectInputStream(socket.getInputStream()); //出力ストリームを作成
+				
 				System.out.println(ThreadNo+"がせつぞくしました");
 			} catch (IOException e) {
 				System.err.println("データ受信時にエラーが発生しました: " + e);
@@ -76,7 +79,7 @@ public class Server {
 								online[ThreadNo]=true;
 							}
 							out.flush();
-							System.out.println("server message sent");
+							System.out.println("server message sent 1");
 						}
 						//アカウント作成のリクエストなら
 						else if(inputLine.equals("accountRequest")) {
@@ -93,23 +96,34 @@ public class Server {
 									online[ThreadNo]=true;
 								}
 								out.flush();
-								System.out.println("server message sent");
+								
+								System.out.println("server message sent 2");
 						}
 						//対戦成績のリクエストなら
 						else if(inputLine.equals("myPlayerRequest")) {
 							    //ユーザ名を受け取り、探索して該当オブジェクトを返す
+							    System.out.println("myPR受信");
 								Player player = playerInfo(user_name);
 								player.ThreadNo=ThreadNo;
-								out.println(player);
-								out.flush();
-								System.out.println("server message sent");
+								System.out.println("Playerオブジェクト作成");
+								out.close();
+								oos = new ObjectOutputStream(socket.getOutputStream());
+								oos.writeObject(player);
+								oos.flush();
+								oos.close();
+								out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
+								System.out.println("server message sent 3");
 						}
 						//データ更新のリクエストなら
 						else if(inputLine.equals("dataUpdate")){
 							//ユーザ名と結果を受け取り、データを更新
 							Player newPlayer;
 							try {
+								br.close();
+								ois = new ObjectInputStream(socket.getInputStream()); //出力ストリームを作成
 								newPlayer = (Player)ois.readObject();
+								ois.close();
+								br = new BufferedReader(sisr); 
 								dataUpdate(newPlayer);
 							} catch (ClassNotFoundException e) {
 								// TODO 自動生成された catch ブロック
@@ -165,6 +179,7 @@ public class Server {
 				}
 			} catch (IOException e){ // 接続が切れたとき
 				System.err.println("プレイヤ " + ThreadNo + "との接続が切れました．");
+				System.out.println(e);
 				game_online_list.remove(game_online_list.indexOf(player)); //対局待ち状態リストから削除する
 				online[ThreadNo] = false; //プレイヤの接続状態を更新する
 				flag=false;
@@ -386,7 +401,7 @@ public class Server {
 
 	public static void main(String[] args) {
 		// TODO 自動生成されたメソッド・スタブ
-		Server server = new Server(10005); //待ち受けポート10000番でサーバオブジェクトを準備
+		Server server = new Server(10013); //待ち受けポート10000番でサーバオブジェクトを準備
 		server.acceptClient(); //クライアント受け入れを開始
 	}
 
