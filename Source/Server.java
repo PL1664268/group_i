@@ -165,15 +165,20 @@ public class Server {
 							System.out.println("相手側に申し込み送信完了");
 						}
 						//申し込に対する答え
-						else if(inputLine.equals("Answear")) {
+						else if(inputLine.equals("Answer")) {
+							System.out.println("答えを受信");
 							String ans = br.readLine();
 							if(ans.equals("Yes")) {
+								receiveThread[map.get(player).ThreadNo].sendMessage("Answer");
 								receiveThread[map.get(player).ThreadNo].sendMessage("Yes");
+								System.out.println("Yesを送信");
 							}
 							else if(ans.equals("No")) {
+								receiveThread[map.get(player).ThreadNo].sendMessage("Answer");
 								receiveThread[map.get(player).ThreadNo].sendMessage("No");
 								receiveThread[map.get(player).ThreadNo].map.remove(receiveThread[map.get(player).ThreadNo].player);
 								map.remove(player);
+								System.out.println("Noを送信");
 							}
 						}
 						//対局中のデータ転送のリクエストなら
