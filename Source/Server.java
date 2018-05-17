@@ -153,12 +153,16 @@ public class Server {
 						//他者への対局申し込みなら
 						else if(inputLine.equals("requestGame")){
 							//対局者のThreadNoと自身のlist番号を受け取り
-							int opponent = br.read();
+							String opponentstring = String.valueOf(br.read());
+							int opponent = Integer.parseInt(opponentstring)-48;
+							System.out.println("受け取ったスレッドナンバー : " + opponent);
 							String applier = String.valueOf(br.read());
+							
 							map.put(player, receiveThread[opponent].player);
 							receiveThread[opponent].map.put(receiveThread[opponent].player, player);
 							//対局を申し込む
 							requestGame(opponent,applier);
+							System.out.println("相手側に申し込み送信完了");
 						}
 						//申し込に対する答え
 						else if(inputLine.equals("Answear")) {
@@ -394,6 +398,7 @@ public class Server {
 //		game_online_list.get(opponent);
 		receiveThread[opponent].sendMessage("requestGame");
 		receiveThread[opponent].sendMessage(applier_list_num);
+		System.out.println("送信したlistnumber : " + applier_list_num);
 	}
 
 	//操作情報を転送
