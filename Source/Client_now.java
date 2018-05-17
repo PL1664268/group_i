@@ -901,6 +901,7 @@ public class Client extends JFrame implements MouseListener {
 				      out.println("Answer");
 				      out.println("Yes");
 				      out.flush();
+				      System.out.println("Yesを送信しました");
 				      stopRecFlag = 1;
 				      //ストリームをクローズする
 				      //out.close();
@@ -1028,9 +1029,13 @@ public class Client extends JFrame implements MouseListener {
 	            		matching.add(No);
 	            		matching.repaint();
 	              //他プレイヤーからの申し込み
-	            }  else if(inputLine.equals("Anser")) {
-	            		if(inputLine.equals("OK")) {
+	            }  else if(inputLine.equals("Answer")) {
+	            		inputLine = in.readLine();
+	            		System.out.println(inputLine);
+	            		if(inputLine.equals("Yes")) {
+	            			System.out.println("答えがYesでした");
 	            			mycolor = "black";
+	            			new Thread(new MatchReceive()).start();
 	            			playothello();
 	            		}else {
 	            			System.out.println("拒否されました");
@@ -1038,7 +1043,6 @@ public class Client extends JFrame implements MouseListener {
 	            }
 	          }
 	        }
-	        in.close();
 	      }catch(IOException e) {
 	        System.out.println("対局申し込みを受理するときにエラーがこきました。");
 	      }
@@ -1048,14 +1052,9 @@ public class Client extends JFrame implements MouseListener {
 	//対局中の通信を行う:受信側
 	  class MatchReceive implements Runnable {
 	    MatchReceive() {
-	      try {
+	      
 	        //グローバル変数 BufferedReader in
-	        in = new BufferedReader(new InputStreamReader(soc.getInputStream()));
-	      } catch(IOException e) {
-	        System.out.println("対局開始時の通信でエラーが起きました。");
-	        System.out.println(e);
-	        System.exit(1);
-	      }
+	        //in = new BufferedReader(new InputStreamReader(soc.getInputStream()));
 	    }
 
 	    public void run() {
@@ -1079,7 +1078,7 @@ public class Client extends JFrame implements MouseListener {
 		          break;
 		        }
 		      }
-		    	}catch (IOException e){
+		    	}catch (Exception e){
 					System.err.println("データ受信時にエラーが発生しました: " + e);
 				}
 	    }
