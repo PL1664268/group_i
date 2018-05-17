@@ -19,7 +19,8 @@ public class Server {
 	private int MAX=100; 										    /*  最大接続数  */
 	private int port; 											    /*  ポート番号  */
 	private boolean [] online; 									/*  クライアント接続状態  */
-	private int sum_of_threadNum;									/*  使われているスレッドの数  */
+	private int sum_of_threadNum=0;									/*  使われているスレッドの数  */
+	private int p;
 	ArrayList<Player> game_online_list = new ArrayList<Player>(); 	/*  対戦待ち状態のArrayList  */
 	Receiver receiveThread[] = new Receiver[MAX];                   /*  受信クラス配列、スレッドの配列  */
 
@@ -78,6 +79,10 @@ public class Server {
 							if(msg.equals("permit")) {
 								online[ThreadNo]=true;
 							}
+							else if(msg.equals("notPermit")) {
+								System.out.println("hello");
+								p--;
+							}
 
 						}
 
@@ -125,9 +130,11 @@ public class Server {
 							}
 
 							/*  updateによる再送信のリクエストなら  */
-							else{
+							else if(game_online_flag){
 								oos.writeObject(game_online_list);  /* 現在の待ち状態リストを送る  */
 								oos.flush();
+								out.println(String.valueOf(game_online_list.size()));  /*  リストのサイズも送信  */
+								out.flush();
 							}
 						}
 
@@ -188,7 +195,9 @@ public class Server {
 				online[ThreadNo] = false;                                 /*  プレイヤの接続状態を更新する    */
 				printStatus();                                            /*  接続状態を出力する              */
 				receiveThread[ThreadNo]=null;                            /*  このThreadを空ける              */
-				sum_of_threadNum--;                                      /*  使ってるスレッド数を減らす      */
+				if(sum_of_threadNum==ThreadNo) { sum_of_threadNum--;                                      /*  使ってるスレッド数を減らす      */
+				System.out.println("decrement");
+				}
 			}
 		}
 
@@ -210,7 +219,6 @@ public class Server {
 			System.out.println("サーバが起動しました．");
 			ServerSocket ss = new ServerSocket(port); /* サーバソケットを用意 */
 			while (true) {
-				int p;
 
 				for (p = 1; p < MAX+1; p++){        /* 接続チェック */
 					if (receiveThread[p] == null)   /* 空いている場合 */
@@ -220,11 +228,11 @@ public class Server {
 				if (p == MAX+1)                     /* 空いていない場合 */
 			    	continue;                    /* 以下の処理をしない */
 
-				sum_of_threadNum=p;                  /* 使われているスレッドの数 */
 				Socket socket = ss.accept();        /* 新規接続を受け付ける     */
 				System.out.println("start Thread"+p);
 				receiveThread[p] = new Receiver(socket, this, p);
 		        receiveThread[p].start( );
+		        sum_of_threadNum++;                  /* 使われているスレッドの数 */
 		     }
 		}catch (Exception e) {
 			System.err.println("ソケット作成時にエラーが発生しました: " + e);
@@ -344,14 +352,20 @@ public class Server {
 	/*クライアント接続状態の出力*/
 	public void printStatus(){
 		int i=0;
+		boolean flag = false;
 		while(i<=sum_of_threadNum) {
-			if(online[i]==true)
-				System.out.println("PlayerNo"+i+"はオンライン状態です");
-			else if(online[i]==false)
-				System.out.println("PlayerNo"+i+"はオフライン状態です");
-
+			if(online[i]==true) {
+				System.out.println
+				("ユーザ名"+receiveThread[i].player.getName()+"はオンライン状態です");
+				flag=true;
+			}
+			System.out.println(i);
 			i++;
 		}
+
+		if(!(flag))
+				System.out.println("オンライン状態のPlayerはいません");
+
 	}
 
 	/*  データ更新  */
@@ -391,7 +405,7 @@ public class Server {
 
             	else{
 
-                    FileOutputStream outFile2 = new FileOutputStream("players.obj",true);/
+                    FileOutputStream outFile2 = new FileOutputStream("players.obj",true);
                    	ObjectOutputStream outObject2 = new ObjectOutputStream(outFile2);
                     outObject2.writeObject(p);
             	}
