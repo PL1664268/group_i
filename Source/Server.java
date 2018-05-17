@@ -16,222 +16,222 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Server {
-	private int MAX=100; //最大接続数
-	private int port; //ポート番号
-	private boolean [] online; //クライアント接続状態
-	ArrayList<Player> game_online_list = new ArrayList<Player>(); //対戦待ち状態のArrayList
-	Receiver receiveThread[] = new Receiver[MAX];  // 受信クラス配列、スレッドの配列
+	private int MAX=100; 										    /*  最大接続数  */
+	private int port; 											    /*  ポート番号  */
+	private boolean [] online; 									/*  クライアント接続状態  */
+	private int sum_of_threadNum;									/*  使われているスレッドの数  */
+	ArrayList<Player> game_online_list = new ArrayList<Player>(); 	/*  対戦待ち状態のArrayList  */
+	Receiver receiveThread[] = new Receiver[MAX];                   /*  受信クラス配列、スレッドの配列  */
 
-	//コンストラクタ
-	public Server(int port) { //待ち受けポートを引数とする
-		this.port = port; //待ち受けポートを渡す
-		online = new boolean[MAX]; //オンライン状態管理用配列を用意
+	//コンストラクタでポート番号を設定
+	public Server(int port) {
+		this.port = port;
+		online = new boolean[MAX];                                 /*  オンライン状態管理用配列を用意  */
+
 	}
 
 	/**********************データ受信用スレッド(内部クラス)**********************/
 	class Receiver extends Thread{
-		private InputStreamReader sisr; //受信データ用文字ストリーム
-		private BufferedReader br; //文字ストリーム用のバッファ
-		private PrintWriter out; //データ送信用オブジェクト
-		private ObjectInputStream ois;
-		private ObjectOutputStream oos;
-		private int ThreadNo; //プレイヤを識別するための番号,スレッド番号
-		private Player player = new Player("dammy", "dammy"); //playerオブジェクト
-		private boolean flag = false; //対局待ちリストのためのフラグ。1回目と2回目以降の要求で処理が変わる。
-		private String user_name; //このスレッドを利用しているユーザ名
+		private InputStreamReader sisr;                            /*  受信データ用文字ストリーム  */
+		private BufferedReader br;                                 /*  文字ストリーム用のバッファ  */
+		private PrintWriter out;                                   /*  データ送信用オブジェクト    */
+		private ObjectInputStream ois;                             /*  オブジェクト入力ストリーム  */
+		private ObjectOutputStream oos;                            /*  オブジェクト出力ストリーム  */
+		private int ThreadNo;                                      /*  スレッド番号(プレイヤを識別するため)  */
+		private Player player = new Player("dammy", "dammy");
+		private boolean game_online_flag = false;                 /*  対局待ちリストのためのフラグ*/
+		private String user_name;                                  /*  このスレッドを利用しているユーザ名 */
 		Socket socket;
-		HashMap<Player,Player> map = new HashMap<Player,Player>(); //対戦中の相手と紐づけるためのHashMap
+		HashMap<Player,Player> map = new HashMap<Player,Player>(); /*  対戦中の相手と紐づけるためのHashMap  */
 
 		//内部クラスReceiverのコンストラクタ
 		Receiver (Socket socket, Server server, int ThreadNo){
 			try{
 				this.socket=socket;
-				this.ThreadNo = ThreadNo; //Thread番号を渡す
+				this.ThreadNo = ThreadNo;
 				sisr = new InputStreamReader(socket.getInputStream());
-				br = new BufferedReader(sisr); //入力ストリームを作成
-				out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream())); //出力ストリームを作成
-				
+				br = new BufferedReader(sisr);
+				out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
+
 				System.out.println(ThreadNo+"がせつぞくしました");
 			} catch (IOException e) {
 				System.err.println("データ受信時にエラーが発生しました: " + e);
 			}
 		}
 
-		//runメソッド
 		public void run(){
 			try{
-				while(true) {// データを受信し続ける
-					String inputLine = br.readLine();//データを一行分読み込む
-					if (inputLine != null){//データを受信したら,先頭メッセージによってメソッドを呼ぶ
+				/*  データを受信し続ける  */
+				while(true) {
+					String inputLine = br.readLine();
+					if (inputLine != null){                       /*  先頭メッセージ応じてメソッドを呼ぶ  */
 
-						//ログイン認証のリクエストなら
+						/* ログイン認証のリクエストなら */
 						if(inputLine.equals("loginRequest")) {
-							//ユーザ名とパスワードを受け取る
 							user_name = br.readLine();
-							String password = br.readLine();
-							System.out.println(user_name);
-							System.out.println(password);
-							//ログインできるかを確認
-							String msg = loginCheck(user_name,password,ThreadNo);
+							String password = br.readLine();                  	    /* user名とパスワードを受け取り */
+							String msg = loginCheck(user_name,password,ThreadNo);  /* ログインできるか確認し     */
 							out.println(msg);
-							//できるなら、結果・スレッド番号・そのPlayerオブジェクトを送る
+							out.flush();										    /*ログイン結果をクライアントに送信*/
+
+							/* ログインできたなら,オンライン状態にする */
 							if(msg.equals("permit")) {
 								online[ThreadNo]=true;
 							}
-							out.flush();
-							System.out.println("server message sent 1");
+
 						}
-						//アカウント作成のリクエストなら
+
+						/*  アカウント作成のリクエストなら  */
 						else if(inputLine.equals("accountRequest")) {
-								//ユーザ名とパスワードを受け取る
-								user_name = br.readLine();
-								String password = br.readLine();
-								System.out.println(user_name);
-								System.out.println(password);
-								//アカウント作成ができるか確認
-								String msg = accountCreate(user_name, password,ThreadNo);
-								out.println(msg);
-								//できるなら、結果・スレッド番号・そのPlayerオブジェクトを送る
-								if(msg.equals("permit")) {
-									online[ThreadNo]=true;
-								}
-								out.flush();
-								
-								System.out.println("server message sent 2");
-						}
-						//対戦成績のリクエストなら
-						else if(inputLine.equals("myPlayerRequest")) {
-							    //ユーザ名を受け取り、探索して該当オブジェクトを返す
-							    System.out.println("myPR受信");
-								Player player = playerInfo(user_name);
-								player.ThreadNo=ThreadNo;
-								System.out.println("Playerオブジェクト作成");
-								//out.close();
-								oos = new ObjectOutputStream(socket.getOutputStream());
-								oos.writeObject(player);
-								oos.flush();
-								//oos.close();
-								//out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
-								System.out.println("server message sent 3");
-						}
-						//データ更新のリクエストなら
-						else if(inputLine.equals("dataUpdate")){
-							//ユーザ名と結果を受け取り、データを更新
-							Player newPlayer;
-							try {
-								br.close();
-								ois = new ObjectInputStream(socket.getInputStream()); //出力ストリームを作成
-								newPlayer = (Player)ois.readObject();
-								ois.close();
-								br = new BufferedReader(sisr); 
-								dataUpdate(newPlayer);
-							} catch (ClassNotFoundException e) {
-								// TODO 自動生成された catch ブロック
-								e.printStackTrace();
+							user_name = br.readLine();
+							String password = br.readLine();                         /*ユーザ名とパスワードを受け取る*/
+							String msg = accountCreate(user_name, password,ThreadNo);/*アカウント作成ができるか確認し*/
+							out.println(msg);
+							out.flush();                                              /*結果をクライアントに送信*/
+
+						    /* 作成できるなら、オンライン状態に追加する  */
+							if(msg.equals("permit")) {
+								online[ThreadNo]=true;
 							}
 
 						}
-						//対局待ち状態のリストのリクエストなら
+
+						/*  対戦成績のリクエストなら  */
+						else if(inputLine.equals("myPlayerRequest")) {
+								Player player = playerInfo(user_name);    /*  ユーザ名を用いてファイルから探索  */
+								player.ThreadNo=ThreadNo;
+								oos = new ObjectOutputStream(socket.getOutputStream());
+								oos.writeObject(player);
+								oos.flush();                               /*  該当オブジェクトをクライアントに送信  */
+						}
+
+						/*  対局待ち状態からhome画面に戻ったら  */
+						else if(inputLine.equals("returnHome")) {
+							game_online_list.remove(player);   /*  待ち状態リストから外し  */
+							game_online_flag=false;           /*  flagの状態を変える     */
+						}
+
+						/*  対局待ち状態リストのリクエストなら  */
 						else if(inputLine.equals("otherPlayerRequest")){
-							//対局待ち状態に遷移してのリクエストなら
-							if(!flag){
-								//自分自身を待ち状態リストに入れ、リストを送る
-								game_online_list.add(player);
-								oos.writeObject(game_online_list);
+
+							/*  1回目の要求なら  */
+							if(!game_online_flag){
+								game_online_list.add(player);      /*  自分自身を待ち状態リストに入れ */
+								oos.writeObject(game_online_list); /*  クライアントにリストを送信     */
 								oos.flush();
-								out.println(String.valueOf(game_online_list.size()));
+								out.println(String.valueOf(game_online_list.size()));  /*  リストのサイズも送信  */
 								out.flush();
-								System.out.println("ArrayList送信済み");
-								flag=true;
+								game_online_flag=true;
 							}
-							//updateによる再送信のリクエストなら
+
+							/*  updateによる再送信のリクエストなら  */
 							else{
-								oos.writeObject(game_online_list); //現在の待ち状態リストを送る
+								oos.writeObject(game_online_list);  /* 現在の待ち状態リストを送る  */
 								oos.flush();
 							}
 						}
-						//他者への対局申し込みなら
+
+						/*  他者への対局申し込みなら  */
 						else if(inputLine.equals("requestGame")){
-							//対局者のThreadNoと自身のlist番号を受け取り
+
 							String opponentstring = String.valueOf(br.read());
-							int opponent = Integer.parseInt(opponentstring)-48;
-							System.out.println("受け取ったスレッドナンバー : " + opponent);
-							String applier = String.valueOf(br.read());
-							
-							map.put(player, receiveThread[opponent].player);
+							int opponent = Integer.parseInt(opponentstring)-48;  /*  対局者のThreadNoと  */
+							String applier = String.valueOf(br.read());           /*  自身のlist番号を受け取り */
+							map.put(player, receiveThread[opponent].player);        /* HashMapでお互いを結ぶ  */
 							receiveThread[opponent].map.put(receiveThread[opponent].player, player);
-							//対局を申し込む
-							requestGame(opponent,applier);
+							requestGame(opponent,applier);    /* 対戦を申し込む */
 							System.out.println("相手側に申し込み送信完了");
 						}
-						//申し込に対する答え
+
+						/*  申し込に対する答えなら  */
 						else if(inputLine.equals("Answer")) {
-							System.out.println("答えを受信");
-							String ans = br.readLine();
+							String ans = br.readLine(); /* 答えを受け取り、申し込み元に送信  */
 							if(ans.equals("Yes")) {
 								receiveThread[map.get(player).ThreadNo].sendMessage("Answer");
 								receiveThread[map.get(player).ThreadNo].sendMessage("Yes");
-								System.out.println("Yesを送信");
 							}
 							else if(ans.equals("No")) {
 								receiveThread[map.get(player).ThreadNo].sendMessage("Answer");
 								receiveThread[map.get(player).ThreadNo].sendMessage("No");
 								receiveThread[map.get(player).ThreadNo].map.remove(receiveThread[map.get(player).ThreadNo].player);
 								map.remove(player);
-								System.out.println("Noを送信");
 							}
 						}
-						//対局中のデータ転送のリクエストなら
+
+						/*  対局中のデータ転送のリクエストなら  */
 						else if(inputLine.equals("forwardMessage")) {
 							String color = br.readLine();
 							String operation = br.readLine();
-							forwardMessage(color, operation, map.get(player).ThreadNo); //もう一方に転送する
+							forwardMessage(color, operation, map.get(player).ThreadNo); //もう一方に転送
+						}
+
+						/*  データ更新のリクエストなら  */
+						else if(inputLine.equals("dataUpdate")){
+							Player newPlayer;
+							try {
+								br.close();
+								ois = new ObjectInputStream(socket.getInputStream());
+								newPlayer = (Player)ois.readObject();
+								ois.close();
+								br = new BufferedReader(sisr);
+								dataUpdate(newPlayer);
+							} catch (ClassNotFoundException e) {
+								e.printStackTrace();
+							}
+
 						}
 					}
 				}
 			} catch (IOException e){ // 接続が切れたとき
 				System.err.println("プレイヤ " + ThreadNo + "との接続が切れました．");
-				e.printStackTrace();
-				game_online_list.remove(game_online_list.indexOf(player)); //対局待ち状態リストから削除する
-				online[ThreadNo] = false; //プレイヤの接続状態を更新する
-				flag=false;
-				printStatus(); //接続状態を出力する
+				game_online_list.remove(game_online_list.indexOf(player)); /*  対局待ち状態リストから削除する  */
+				online[ThreadNo] = false;                                 /*  プレイヤの接続状態を更新する    */
+				printStatus();                                            /*  接続状態を出力する              */
+				receiveThread[ThreadNo]=null;                            /*  このThreadを空ける              */
+				sum_of_threadNum--;                                      /*  使ってるスレッド数を減らす      */
 			}
 		}
+
+		/*  対応するクライアントにメッセージを送信  */
 		public synchronized void sendMessage(String message) {
-		    out.println(message);         // スレッドが応対するクライアントに送信
-		    out.flush();             // バッファ内のデータを強制的に送信
+		    out.println(message);
+		    out.flush();
 		  }
+
 	}
 	/**********************************受信スレッド(内部クラス)の終わり*******************************/
 
 
 /****************************************メソッド**************************************************/
 
-	//クライアントの接続(サーバの起動)
+	/* クライアントの接続(サーバの起動) */
 	public void acceptClient(){
 		try {
 			System.out.println("サーバが起動しました．");
-			ServerSocket ss = new ServerSocket(port); //サーバソケットを用意
+			ServerSocket ss = new ServerSocket(port); /* サーバソケットを用意 */
 			while (true) {
-			       int p;
-			        for (p = 0; p < MAX; p++){      // 接続チェック
-			          if (receiveThread[p] == null)    // 空いている場合
-			            break;
-			        }
-			        if (p == MAX)           // 空いていない場合
-			            continue;             // 以下の処理をしない
+				int p;
 
-				Socket socket = ss.accept(); //新規接続を受け付ける
+				for (p = 1; p < MAX+1; p++){        /* 接続チェック */
+					if (receiveThread[p] == null)   /* 空いている場合 */
+			            break;
+			    }
+
+				if (p == MAX+1)                     /* 空いていない場合 */
+			    	continue;                    /* 以下の処理をしない */
+
+				sum_of_threadNum=p;                  /* 使われているスレッドの数 */
+				Socket socket = ss.accept();        /* 新規接続を受け付ける     */
+				System.out.println("start Thread"+p);
 				receiveThread[p] = new Receiver(socket, this, p);
-		        receiveThread[p].start( );       // スレッドスタート
+		        receiveThread[p].start( );
 		     }
-		} catch (Exception e) {
+		}catch (Exception e) {
 			System.err.println("ソケット作成時にエラーが発生しました: " + e);
 		}
 	}
 
-	//ログイン認証
+	/* ログイン認証 */
 	public String loginCheck(String user_name, String password, int ThreadNo) {
 		try{
 			Player player;
@@ -239,28 +239,30 @@ public class Server {
 			FileInputStream inFile = new FileInputStream("players.obj");
 
             try{
-            while(true){
-            	//ObjectInputStreamオブジェクトの生成
-            	ObjectInputStream inObject = new ObjectInputStream(inFile);
-            	player = (Player)inObject.readObject(); //オブジェクトの読み込み
+            	while(true){
+            		//ObjectInputStreamオブジェクトの生成
+            		ObjectInputStream inObject = new ObjectInputStream(inFile);
+            		player = (Player)inObject.readObject(); /*オブジェクトの読み込み*/
 
-            	//もし、ユーザ名とパスワードが一致するなら
-            	if(player.getName().equals(user_name) && player.getPassword().equals(password)){
-            		receiveThread[ThreadNo].player=player; //そのplayerオブジェクトを取り出す
-            		inObject.close();
-            		System.out.println("login permit");
-            		return "permit"; //ログインを許可する
+            		/* もし、ユーザ名とパスワードが一致するなら */
+            		if(player.getName().equals(user_name) && player.getPassword().equals(password)){
+            			player.setThreadNo(ThreadNo);
+            			receiveThread[ThreadNo].player=player; /*そのplayerオブジェクトをThreadに保存*/
+            			inObject.close();
+            			System.out.println("login permit");
+            			return "permit"; /*ログインを許可する*/
+            		}
+
             	}
-
-              }
             }catch(EOFException e){
     		}
 		}catch(Exception e){
-
 		}
-   		//一致しなかったら、許可しない
+
+   		/*一致しなかったら、許可しない*/
 		System.out.println("No permit");
 		return "notPermit";
+
 	}
 
 	//アカウント作成
@@ -287,7 +289,7 @@ public class Server {
             }catch(EOFException e){
     		}
 
-            //名前の重複がなく、新規アカウントが作成できるなら↓↓↓
+            /*   ↓↓↓名前の重複がなく、新規アカウントが作成できるなら↓↓↓   */
 
             //FileOutputStreamオブジェクトの生成
             FileOutputStream outFile = new FileOutputStream("players.obj",true);
@@ -303,12 +305,14 @@ public class Server {
        catch(Exception e) {
     	   e.printStackTrace();
        }
-		//アカウント作成の許可
+
+		/*アカウント作成の許可*/
 		System.out.println("true");
         return "permit";
+
 	}
 
-	//Playerの対戦成績を送信
+	/* Playerの対戦成績を送信 */
 	public Player playerInfo(String user_name) {
 		//Playerオブジェクトを格納する変数
 		Player player = new Player("dammy", "dammy");
@@ -317,105 +321,101 @@ public class Server {
         	//FileInputStreamオブジェクトの生成
             FileInputStream inFile = new FileInputStream("players.obj");
 
-       //該当するオブジェクトを探索
-       while(true){
+            //該当するオブジェクトを探索
+            while(true){
         	//ObjectInputStreamオブジェクトの生成
         	ObjectInputStream inObject = new ObjectInputStream(inFile);
         	player = (Player)inObject.readObject(); //読み込み
-        	System.out.println(player.getName());
-        	if(player.getName().equals(user_name)){
-        		inObject.close();
-        		System.out.println("sent your info");
-        		break;
-        	}
-         }
+
+        		if(player.getName().equals(user_name)){
+        			inObject.close();
+        			break;
+        		}
+
+            }
         }
         catch(Exception e){
 		}
-       return player; //オブジェクトをリターン、クライアントへ送る。
+
+        return player; //オブジェクトをリターン、クライアントへ送る。
+
 	}
 
-	//クライアント接続状態の確認
+	/*クライアント接続状態の出力*/
 	public void printStatus(){
 		int i=0;
-		while(i<=online.length) {
+		while(i<=sum_of_threadNum) {
 			if(online[i]==true)
 				System.out.println("PlayerNo"+i+"はオンライン状態です");
 			else if(online[i]==false)
 				System.out.println("PlayerNo"+i+"はオフライン状態です");
+
+			i++;
 		}
 	}
 
-	//データ更新
+	/*  データ更新  */
 	public void dataUpdate(Player newPlayer) {
 		Player player;
 		ObjectInputStream inObject;
 		ArrayList<Player> arr = new ArrayList<Player>();
         try{
-        	//FileInputStreamオブジェクトの生成
+        	/*  FileInputStreamオブジェクトの生成  */
             FileInputStream inFile = new FileInputStream("players.obj");
-            //データ更新をするオブジェクトを探す
-            while(true){
-            	//ObjectInputStreamオブジェクトの生成
-            	inObject = new ObjectInputStream(inFile);
-            	player = (Player)inObject.readObject(); //読み込み
-            	System.out.println(player.getName());
-            	if(player.getName().equals("user2")){
-            	player = newPlayer;
-		}
-            	arr.add(player);
-            }
 
+            /*データ更新をするオブジェクトを探索*/
+            while(true){
+            	inObject = new ObjectInputStream(inFile);
+            	player = (Player)inObject.readObject(); /* オブジェクトを読み込む  */
+
+            	if(player.getName().equals("user2")){
+            		player = newPlayer;  /*ユーザ名が一致したら、新データを持つオブジェクトを保存*/
+            	}
+            	arr.add(player);  /* 1度すべてのオブジェクトファイルから読み込み、リストとする */
+            }
          }catch(Exception e){
          }
 
+        /*オブジェクトを保存*/
         try{
            	boolean flag=false;
             for(Player p : arr){
+
+            	/*一つ目のオブジェクトの保存は、ファイルを新しくしてから保存*/
             	if(flag==false){
-                    FileOutputStream outFile1 = new FileOutputStream("players.obj");
-                    //FileOutputStreamオブジェクトの生成
+                    FileOutputStream outFile1 = new FileOutputStream("players.obj");  /*第二引数なし*/
                    	ObjectOutputStream outObject1 = new ObjectOutputStream(outFile1);
             		outObject1.writeObject(p);
             		flag=true;
             	}
+
             	else{
-                    //FileOutputStreamオブジェクトの生成
-                    FileOutputStream outFile2 = new FileOutputStream("players.obj",true);
-                    //FileOutputStreamオブジェクトの生成
+
+                    FileOutputStream outFile2 = new FileOutputStream("players.obj",true);/
                    	ObjectOutputStream outObject2 = new ObjectOutputStream(outFile2);
                     outObject2.writeObject(p);
-
             	}
-            	System.out.println(p.getName());
+
             }
         }catch(Exception e){
         }
 	}
 
-	/*//対局待ち状態受付 and 対戦者リスト転送
-	public void sendList(){
-
-	}*/
-
-	//対局申し込み転送
+	/*  対局申し込み転送  */
 	public void requestGame(int opponent,String applier_list_num){
-//		game_online_list.get(opponent);
 		receiveThread[opponent].sendMessage("requestGame");
 		receiveThread[opponent].sendMessage(applier_list_num);
-		System.out.println("送信したlistnumber : " + applier_list_num);
 	}
 
-	//操作情報を転送
+	/*  操作情報を転送  */
 	public void forwardMessage(String msg1, String msg2, int ThreadNo) {
 		receiveThread[ThreadNo].sendMessage(msg1);
 		receiveThread[ThreadNo].sendMessage(msg2);
 	}
 
 	public static void main(String[] args) {
-		// TODO 自動生成されたメソッド・スタブ
-		Server server = new Server(10026); //待ち受けポート10000番でサーバオブジェクトを準備
-		server.acceptClient(); //クライアント受け入れを開始
+		Server server = new Server(10026);
+		server.acceptClient(); /*  クライアント受け入れを開始  */
 	}
 
 }
