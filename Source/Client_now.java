@@ -164,7 +164,7 @@ public class Client extends JFrame implements MouseListener {
 		
 		login.addActionListener(new ActionListener() { // ログインボタンを押した時の処理
 			 public void actionPerformed(ActionEvent as) {
-				 boolean connectresult = connectServer("localhost", 10026);
+				 boolean connectresult = connectServer("localhost", 10027);
 				 if( connectresult == false) {
 					 serverfailed.setText("Could not connect to the server!");
 				 }
@@ -907,6 +907,9 @@ public class Client extends JFrame implements MouseListener {
 				      //out.close();
 				      mycolor = "white";
 				      playothello();
+				      //stopRecFlag = 1;
+				      matching.removeAll();
+				      System.out.println("申し込んだ側：MatchR");
 				      new Thread(new MatchReceive()).start();
 				 
 			 }
@@ -1003,18 +1006,20 @@ public class Client extends JFrame implements MouseListener {
 	    //ストリームが２つになってしまう可能性がある。例えば更新をしたとき
 	    //Clientクラスのクラス変数とは別のストリーム用の変数
 	    //コンストラクタ
-	    ReceiveInvite() {
+	    //ReceiveInvite() {
 	      
 	        //グローバル変数BufferedReader in
 	        //in = new BufferedReader(new InputStreamReader(soc.getInputStream()));
 	      
-	    }
+	    //}
 
 	    public void run() {
 	      try {
+	    	  System.out.println("InviteReceive start");
 	        while(true) {
 	          if(stopRecFlag == 1) {
 	            stopRecFlag = 0;
+	            System.out.println("InviteReceive end");
 	            //スレッド終了時の処理 = 対局をやめる(ユーザーホームに戻る)
 	            break;
 	          }
@@ -1035,8 +1040,15 @@ public class Client extends JFrame implements MouseListener {
 	            		if(inputLine.equals("Yes")) {
 	            			System.out.println("答えがYesでした");
 	            			mycolor = "black";
-	            			new Thread(new MatchReceive()).start();
+	            			System.out.println("スレッド起動前");
+	            			
+	            			
+	            			
 	            			playothello();
+	            			matching.removeAll();
+	            			System.out.println("申し込まれた側：MatchR");
+	            			new Thread(new MatchReceive()).start();
+	            			System.out.println("スレッド起動後");
 	            		}else {
 	            			System.out.println("拒否されました");
 	            		}
@@ -1051,14 +1063,15 @@ public class Client extends JFrame implements MouseListener {
 	
 	//対局中の通信を行う:受信側
 	  class MatchReceive implements Runnable {
-	    MatchReceive() {
+	    //MatchReceive() {
 	      
 	        //グローバル変数 BufferedReader in
 	        //in = new BufferedReader(new InputStreamReader(soc.getInputStream()));
-	    }
+	    //}
 
 	    public void run() {
 	    	try {
+	    		System.out.println("MatchReceive start");
 		      while(true) {
 		        String readLine = in.readLine();
 		        if(readLine != null) {
@@ -1075,6 +1088,7 @@ public class Client extends JFrame implements MouseListener {
 		        //終了時の処理
 		        if(stopRecFlag == 1) {
 		          stopRecFlag = 0;
+		          System.out.println("MatchReceive end");
 		          break;
 		        }
 		      }
@@ -1256,16 +1270,26 @@ public class Client extends JFrame implements MouseListener {
 		//オセロ盤の生成
 		buttonArray = new JButton[row * row];//ボタンの配列を作成
 		for(int i = 0 ; i < row * row ; i++){
-			if(grids[i]==1){ buttonArray[i] = new JButton(blackIcon);}//盤面状態に応じたアイコンを設定
-			if(grids[i]==2){ buttonArray[i] = new JButton(whiteIcon);}//盤面状態に応じたアイコンを設定
-			if(grids[i]==0){ buttonArray[i] = new JButton(boardIcon);}//盤面状態に応じたアイコンを設定
-			Board.add(buttonArray[i]);//ボタンの配列をペインに貼り付け
+			if(grids[i]==1){ 
+				buttonArray[i] = new JButton(blackIcon);
+				System.out.println("obj made1");
+			}//盤面状態に応じたアイコンを設定
+			if(grids[i]==2){ 
+				buttonArray[i] = new JButton(whiteIcon);
+				System.out.println("obj made2");
+			}//盤面状態に応じたアイコンを設定
+			if(grids[i]==0){
+				buttonArray[i] = new JButton(boardIcon);
+				System.out.println("obj made 3");
+			}//盤面状態に応じたアイコンを設定
+			
 			// ボタンを配置する
 			int x = (i % row) * 45 + 250;
 			int y = (int) 10 + (i / row)*45 + 30;
 			buttonArray[i].setBounds(x, y, 45, 45);//ボタンの大きさと位置を設定する．
 			buttonArray[i].addMouseListener(this);//マウス操作を認識できるようにする
 			buttonArray[i].setActionCommand(Integer.toString(i));//ボタンを識別するための名前(番号)を付加する
+			Board.add(buttonArray[i]);//ボタンの配列をペインに貼り付け
 		}
 		
 		//黒の数
@@ -1299,6 +1323,7 @@ public class Client extends JFrame implements MouseListener {
 		Board.add(turnLabel);
 		
 		add(Board);
+		Board.repaint();
 		
 		setVisible(true);
 	}
