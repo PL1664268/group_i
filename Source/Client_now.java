@@ -178,11 +178,11 @@ public class Client extends JFrame implements MouseListener {
 					 if(flag==true) {
 						 myPlayerRequest();
 						 playername = myPlayer.getName();
+						 System.out.println("自分のスレッドナンバー : " + myPlayer.ThreadNo);
 						 userhome();
 						 p.removeAll();
 					 }
 				 }
-				
         }
 		});
 		newuser.addActionListener(new ActionListener() { //アカウント登録ボタンを押した時の処理
@@ -372,6 +372,7 @@ public class Client extends JFrame implements MouseListener {
 							 myPlayerRequest();
 							 System.out.println("プレイヤーオブジェクト受信");
 							 playername = myPlayer.getName();
+							 System.out.println("自分のスレッドナンバー : " + myPlayer.ThreadNo);
 							 userhome();
 							 p.removeAll();
 						 }
@@ -767,26 +768,26 @@ public class Client extends JFrame implements MouseListener {
 		
 		play[0].addActionListener(new ActionListener() { // player1ボタンを押した時の処理
 			 public void actionPerformed(ActionEvent as) {
-				 try {
-				      out = new PrintWriter(new OutputStreamWriter(soc.getOutputStream()));
+				 
+				      //out = new PrintWriter(new OutputStreamWriter(soc.getOutputStream()));
 				      out.println("requestGame");
-				      out.println(playerlist.get(0).ThreadNo);
-				      out.println(playerlist.indexOf(myPlayer));
+				      out.println(Integer.toString(playerlist.get(0).ThreadNo)); //スレッドナンバーを送信
+				      System.out.println("TheradNo : " + playerlist.get(0).ThreadNo);
+				      out.println(Integer.toString(playerlist.indexOf(myPlayer)));
 				      out.flush();
+				      System.out.println("申し込み送信完了");
 				      
 				      //ストリームをクローズする
 				      //out.close();
-				    } catch(IOException e) {
-				      System.out.println(e);
-				    }
+				  
 				 
 			 }
 		});
 		
 		play[1].addActionListener(new ActionListener() { // player2ボタンを押した時の処理
 			 public void actionPerformed(ActionEvent as) {
-				 try {
-				      out = new PrintWriter(new OutputStreamWriter(soc.getOutputStream()));
+				
+				      //out = new PrintWriter(new OutputStreamWriter(soc.getOutputStream()));
 				      out.println("requestGame");
 				      out.println(playerlist.get(1).ThreadNo);
 				      out.println(playerlist.indexOf(myPlayer));
@@ -794,17 +795,15 @@ public class Client extends JFrame implements MouseListener {
 				      
 				      //ストリームをクローズする
 				      //out.close();
-				    } catch(IOException e) {
-				      System.out.println(e);
-				    }
+				  
 				 
 			 }
 		});
 		
 		play[2].addActionListener(new ActionListener() { // player3ボタンを押した時の処理
 			 public void actionPerformed(ActionEvent as) {
-				 try {
-				      out = new PrintWriter(new OutputStreamWriter(soc.getOutputStream()));
+				 
+				      //out = new PrintWriter(new OutputStreamWriter(soc.getOutputStream()));
 				      out.println("requestGame");
 				      out.println(playerlist.get(2).ThreadNo);
 				      out.println(playerlist.indexOf(myPlayer));
@@ -812,17 +811,15 @@ public class Client extends JFrame implements MouseListener {
 				      
 				      //ストリームをクローズする
 				      //out.close();
-				    } catch(IOException e) {
-				      System.out.println(e);
-				    }
+				   
 				 
 			 }
 		});
 		
 		play[3].addActionListener(new ActionListener() { // player4ボタンを押した時の処理
 			 public void actionPerformed(ActionEvent as) {
-				 try {
-				      out = new PrintWriter(new OutputStreamWriter(soc.getOutputStream()));
+				 
+				      //out = new PrintWriter(new OutputStreamWriter(soc.getOutputStream()));
 				      out.println("requestGame");
 				      out.println(playerlist.get(3).ThreadNo);
 				      out.println(playerlist.indexOf(myPlayer));
@@ -830,17 +827,14 @@ public class Client extends JFrame implements MouseListener {
 				      
 				      //ストリームをクローズする
 				      //out.close();
-				    } catch(IOException e) {
-				      System.out.println(e);
-				    }
-				 
+				    
 			 }
 		});
 		
 		play[4].addActionListener(new ActionListener() { // player5ボタンを押した時の処理
 			 public void actionPerformed(ActionEvent as) {
-				 try {
-				      out = new PrintWriter(new OutputStreamWriter(soc.getOutputStream()));
+			
+				      //out = new PrintWriter(new OutputStreamWriter(soc.getOutputStream()));
 				      out.println("requestGame");
 				      out.println(playerlist.get(4).ThreadNo);
 				      out.println(playerlist.indexOf(myPlayer));
@@ -848,17 +842,15 @@ public class Client extends JFrame implements MouseListener {
 				      
 				      //ストリームをクローズする
 				      //out.close();
-				    } catch(IOException e) {
-				      System.out.println(e);
-				    }
+				    
 				 
 			 }
 		});
 		
 		play[5].addActionListener(new ActionListener() { // player6ボタンを押した時の処理
 			 public void actionPerformed(ActionEvent as) {
-				 try {
-				      out = new PrintWriter(new OutputStreamWriter(soc.getOutputStream()));
+			
+				      //out = new PrintWriter(new OutputStreamWriter(soc.getOutputStream()));
 				      out.println("requestGame");
 				      out.println(playerlist.get(5).ThreadNo);
 				      out.println(playerlist.indexOf(myPlayer));
@@ -866,17 +858,15 @@ public class Client extends JFrame implements MouseListener {
 				      
 				      //ストリームをクローズする
 				      //out.close();
-				    } catch(IOException e) {
-				      System.out.println(e);
-				    }
+				   
 				 
 			 }
 		});
 		
 		play[6].addActionListener(new ActionListener() { // player7ボタンを押した時の処理
 			 public void actionPerformed(ActionEvent as) {
-				 try {
-				      out = new PrintWriter(new OutputStreamWriter(soc.getOutputStream()));
+			
+				      //out = new PrintWriter(new OutputStreamWriter(soc.getOutputStream()));
 				      out.println("requestGame");
 				      out.println(playerlist.get(6).ThreadNo);
 				      out.println(playerlist.indexOf(myPlayer));
@@ -884,17 +874,15 @@ public class Client extends JFrame implements MouseListener {
 				      
 				      //ストリームをクローズする
 				      //out.close();
-				    } catch(IOException e) {
-				      System.out.println(e);
-				    }
+				    
 				 
 			 }
 		});
 		
 		play[7].addActionListener(new ActionListener() { // player8ボタンを押した時の処理
 			 public void actionPerformed(ActionEvent as) {
-				 try {
-				      out = new PrintWriter(new OutputStreamWriter(soc.getOutputStream()));
+				 
+				      //out = new PrintWriter(new OutputStreamWriter(soc.getOutputStream()));
 				      out.println("requestGame");
 				      out.println(playerlist.get(7).ThreadNo);
 				      out.println(playerlist.indexOf(myPlayer));
@@ -902,17 +890,14 @@ public class Client extends JFrame implements MouseListener {
 				      
 				      //ストリームをクローズする
 				      //out.close();
-				    } catch(IOException e) {
-				      System.out.println(e);
-				    }
 				 
 			 }
 		});
 		
 		Yes.addActionListener(new ActionListener() { // Yesボタンを押した時の処理
 			 public void actionPerformed(ActionEvent as) {
-				 try {
-				      out = new PrintWriter(new OutputStreamWriter(soc.getOutputStream()));
+			
+				      //out = new PrintWriter(new OutputStreamWriter(soc.getOutputStream()));
 				      out.println("Answer");
 				      out.println("Yes");
 				      out.flush();
@@ -922,26 +907,20 @@ public class Client extends JFrame implements MouseListener {
 				      mycolor = "white";
 				      playothello();
 				      new Thread(new MatchReceive()).start();
-				    } catch(IOException e) {
-				      System.out.println(e);
-				    }
 				 
 			 }
 		});
 		
 		No.addActionListener(new ActionListener() { // Noボタンを押した時の処理
 			 public void actionPerformed(ActionEvent as) {
-				 try {
-				      out = new PrintWriter(new OutputStreamWriter(soc.getOutputStream()));
+			
+				      //out = new PrintWriter(new OutputStreamWriter(soc.getOutputStream()));
 				      out.println("Answer");
 				      out.println("No");
 				      out.flush();
 				      
 				      //ストリームをクローズする
 				      //out.close();
-				    } catch(IOException e) {
-				      System.out.println(e);
-				    }
 			 }
 		});
 		
@@ -1024,13 +1003,10 @@ public class Client extends JFrame implements MouseListener {
 	    //Clientクラスのクラス変数とは別のストリーム用の変数
 	    //コンストラクタ
 	    ReceiveInvite() {
-	      try {
+	      
 	        //グローバル変数BufferedReader in
-	        in = new BufferedReader(new InputStreamReader(soc.getInputStream()));
-	      } catch(IOException e) {
-	        System.out.println(e);
-	        System.exit(1);
-	      }
+	        //in = new BufferedReader(new InputStreamReader(soc.getInputStream()));
+	      
 	    }
 
 	    public void run() {
@@ -1042,15 +1018,18 @@ public class Client extends JFrame implements MouseListener {
 	            break;
 	          }
 	          String inputLine = in.readLine();
+	        
 	          if(inputLine != null) {
-	            if(in.equals("requestGame")) {
-	            		 playernumber = Integer.parseInt(in.readLine());
-	            		 matching.add(Yes);
-	            		 matching.add(No);
-	            		 matching.repaint();
+	            if(inputLine.equals("requestGame")) {
+	            		System.out.println("申し込みを受信");
+	            		playernumber = Integer.parseInt(in.readLine());
+	            		System.out.println("playernumber : " + playernumber);
+	            		matching.add(Yes);
+	            		matching.add(No);
+	            		matching.repaint();
 	              //他プレイヤーからの申し込み
-	            }  else if(in.equals("Anser")) {
-	            		if(in.equals("OK")) {
+	            }  else if(inputLine.equals("Anser")) {
+	            		if(inputLine.equals("OK")) {
 	            			mycolor = "black";
 	            			playothello();
 	            		}else {
