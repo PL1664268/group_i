@@ -5,7 +5,7 @@ Wedサイト上の色を調べられます。<br>
 https://chrome.google.com/webstore/detail/colorpick-eyedropper/ohcpnigalekghcmgcdcenkpelffpdolg
 <br>
 カッコイイWedデザインがみれるサイト<br>
-https://www.behance.net/
+https://www.behance.net/gallery/
 <br>
 画像編集サイトWedアプリ<br>
 https://pixlr.com/
