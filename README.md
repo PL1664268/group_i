@@ -1,3 +1,21 @@
+
+***
+
+Wedサイト上の色を調べられます。<br>
+https://chrome.google.com/webstore/detail/colorpick-eyedropper/ohcpnigalekghcmgcdcenkpelffpdolg
+<br>
+カッコイイWedデザインがみれるサイト<br>
+https://www.behance.net/
+<br>
+画像編集サイトWedアプリ<br>
+https://pixlr.com/
+<br>
+アイコン画像のフリー素材サイト<br>
+http://icooon-mono.com/
+<br>
+
+***
+
 コレクションをArrayListオブジェクトにできます。<br>
 コンストラクタ:ArrayList(Collection c)
 例:ArrayList arrList = new ArrayList(Map.values());
