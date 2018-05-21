@@ -976,6 +976,7 @@ public class Client extends JFrame implements MouseListener {
 				      //out = new PrintWriter(new OutputStreamWriter(soc.getOutputStream()));
 				      out.println("Answer");
 				      out.println("Yes");
+				      out.println(myPlayer.getName());
 				      out.flush();
 
 				      System.out.println("Yesを送信しました");
@@ -1122,7 +1123,8 @@ public class Client extends JFrame implements MouseListener {
 		            		playernumber = Integer.parseInt(in.readLine());
 
 		            		System.out.println("playernumber : " + playernumber);
-		            		opponentname.setText(in.readLine() + "(" + in.readLine() + ")");
+		            		opponentnamestring = in.readLine();
+		            		opponentname.setText(opponentnamestring + "(" + in.readLine() + ")");
 		            		matching.add(opponentname);
 		            		matching.add(Yes);
 		            		matching.add(No);
@@ -1135,7 +1137,8 @@ public class Client extends JFrame implements MouseListener {
 		            		inputLine = in.readLine();
 		            		System.out.println(inputLine);
 		            		if(inputLine.equals("Yes")) {
-
+		            			opponentnamestring = in.readLine();
+		            			
 		            			mycolor = "black";
 
 		            			playothello();
@@ -1392,14 +1395,14 @@ public class Client extends JFrame implements MouseListener {
 		JLabel black = new JLabel("Black : " + game.black());
 		black.setForeground(text);
 		black.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 24));
-		black.setBounds(65,50,200,20);
+		black.setBounds(65,100,200,20);
 		Board.add(black);
 
 		//白の数
 		JLabel white = new JLabel("White : " + game.white());
 		white.setForeground(text);
 		white.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 24));
-		white.setBounds(65,100,200,20);
+		white.setBounds(65,150,200,20);
 		Board.add(white);
 
 		//降参ボタン
@@ -1451,7 +1454,11 @@ public class Client extends JFrame implements MouseListener {
 		Board.add(mycolorlabel);
 		
 		//対戦相手名表示
-		opponentnamelabel = new JLabel();
+		opponentnamelabel = new JLabel("VS " + opponentnamestring);
+		opponentnamelabel.setForeground(text);
+		opponentnamelabel.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 24));
+		opponentnamelabel.setBounds(10,50, 200, 30);
+		Board.add(opponentnamelabel);
 
 		add(Board);
 		Board.repaint();
@@ -1547,6 +1554,12 @@ public class Client extends JFrame implements MouseListener {
 				white.setBounds(65,150,200,20);
 				Board.add(white);
 
+				//対戦相手名表示
+				opponentnamelabel = new JLabel("VS " + opponentnamestring);
+				opponentnamelabel.setForeground(text);
+				opponentnamelabel.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 24));
+				opponentnamelabel.setBounds(10,50, 200, 30);
+				Board.add(opponentnamelabel);
 
 
 		//降参ボタン
