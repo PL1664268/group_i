@@ -65,6 +65,10 @@ public class Client extends JFrame implements MouseListener {
 	JPanel resultpanel = new JPanel();
 	JButton quitgame = new JButton();
 	JLabel opponentnamelabel = new JLabel();
+	JLabel reallysurrender = new JLabel();
+	JButton surrenderyes = new JButton();
+	JButton surrenderno = new JButton();
+	
 
 	 /*********通信属性*********/
 	  //private Receive receive;  //入力ストリーム用内部クラスのインスタンス変数
@@ -1416,10 +1420,33 @@ public class Client extends JFrame implements MouseListener {
 		Board.add(stop);
 		stop.addActionListener(new ActionListener() { // 降参ボタンを押した時の処理
 			 public void actionPerformed(ActionEvent as) {
+				 
 				Board.removeAll();
 				userhome();
 			 }
 		});
+		
+		//本当に降参しますか？文
+		reallysurrender = new JLabel("really?");
+		
+		//降参Yes
+		surrenderyes = new JButton("Yes");
+		stop.setForeground(text);
+		stop.setBackground(button);
+		stop.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 24));
+		stop.setBounds(475,440,150,50);
+		stop.setOpaque(true);
+		stop.setBorderPainted(false);
+		
+		
+		//降参No
+		surrenderno = new JButton("No");
+		stop.setForeground(text);
+		stop.setBackground(button);
+		stop.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 24));
+		stop.setBounds(475,440,150,50);
+		stop.setOpaque(true);
+		stop.setBorderPainted(false);
 
 		//ゲーム終了ボタン
 				quitgame = new JButton("Game is over!");
