@@ -1913,6 +1913,7 @@ public class Client extends JFrame implements MouseListener {
 	    if(isWin == true) {
 	      if(yourRate>=secondRate) {
 	        new_gap = 16 - gap*0.04;
+	        if(new_gap<0) new_gap = -new_gap;
 	      } else {
 	        new_gap = 16 + gap*0.04;
 	      }
@@ -1923,11 +1924,12 @@ public class Client extends JFrame implements MouseListener {
 	        new_gap = -40;
 	      }
 	      return (yourRate+new_gap);
-	    } else {
+	    } else {//自分がまけ
 	      if(yourRate>=secondRate) {
 	        new_gap = 16 + gap*0.04;
 	      } else {
 	        new_gap = 16 - gap*0.04;
+	        if(new_gap<0) new_gap = -new_gap;
 	      }
 	      if(new_gap >= 40) {
 	        new_gap = 40;

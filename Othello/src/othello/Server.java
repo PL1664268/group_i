@@ -199,12 +199,14 @@ public class Server {
 
 						/*  申し込に対する答えなら  */
 						else if(inputLine.equals("Answer")) {
-							String ans = br.readLine(); /* 答えを受け取り、申し込み元に送信  */	
+							String ans = br.readLine(); /* 答えを受け取り、申し込み元に送信  */
 							String name = br.readLine();
+							String rate = br.readLine();
 							if(ans.equals("Yes")) {
 								receiveThread[map.get(player).ThreadNo].sendMessage("Answer");
 								receiveThread[map.get(player).ThreadNo].sendMessage("Yes");
 								receiveThread[map.get(player).ThreadNo].sendMessage(name);
+								receiveThread[map.get(player).ThreadNo].sendMessage(rate);
 							//	game_online_list.remove(player);
 							//	game_online_list.remove(map.get(player));
 							}
@@ -228,7 +230,8 @@ public class Server {
 
 								String user_name = br.readLine();
 								String result    = br.readLine();
-								dataUpdate(user_name,result);
+								String rate = br.readLine();
+								dataUpdate(user_name,result,rate);
 
 						}
 					}
@@ -419,7 +422,7 @@ public class Server {
 	}
 
 	/*  データ更新  */
-	public void dataUpdate(String user_name, String result) {
+	public void dataUpdate(String user_name, String result, String rate) {
 		Player player;
 		ObjectInputStream inObject;
 		PlayerArrayList<Player> arr = new PlayerArrayList<Player>();
@@ -440,6 +443,7 @@ public class Server {
             		}else if(result.equals("DRAW")) {
             			player.setDraw(player.getDraw()+1);
             		}
+            		player.setRate(Double.valueOf(rate));
             	}
             	arr.add(player);  /* 1度すべてのオブジェクトファイルから読み込み、リストとする */
             }
