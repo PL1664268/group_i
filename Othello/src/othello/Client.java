@@ -49,6 +49,7 @@ public class Client extends JFrame implements MouseListener {
 	private boolean playerisgameover = false;
 	private boolean opponentisgameover = false;
 	private int opponentotherplayernumber;
+	private String opponentnamestring;
 
 
 	int row = 8; //getRowメソッドによりオセロ盤の縦横マスの数を取得
@@ -63,6 +64,7 @@ public class Client extends JFrame implements MouseListener {
 	JLabel mycolorlabel = new JLabel();
 	JPanel resultpanel = new JPanel();
 	JButton quitgame = new JButton();
+	JLabel opponentnamelabel = new JLabel();
 
 	 /*********通信属性*********/
 	  //private Receive receive;  //入力ストリーム用内部クラスのインスタンス変数
@@ -1394,7 +1396,7 @@ public class Client extends JFrame implements MouseListener {
 		Board.add(black);
 
 		//白の数
-		JLabel white = new JLabel("Black : " + game.white());
+		JLabel white = new JLabel("White : " + game.white());
 		white.setForeground(text);
 		white.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 24));
 		white.setBounds(65,100,200,20);
@@ -1405,7 +1407,7 @@ public class Client extends JFrame implements MouseListener {
 		stop.setForeground(text);
 		stop.setBackground(button);
 		stop.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 24));
-		stop.setBounds(475,440,250,50);
+		stop.setBounds(475,440,150,50);
 		stop.setOpaque(true);
 		stop.setBorderPainted(false);
 		Board.add(stop);
@@ -1436,13 +1438,20 @@ public class Client extends JFrame implements MouseListener {
 
 		//手番表示
 		turnLabel = new JLabel(game.getTurn() + "の番です");
+		turnLabel.setForeground(text);
+		turnLabel.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 24));
 		turnLabel.setBounds(10, row * 45 + 60, row * 45 + 10, 30);
 		Board.add(turnLabel);
 
 		//自分の色表示
 		mycolorlabel = new JLabel("あなたは" + mycolor);
+		mycolorlabel.setForeground(text);
+		mycolorlabel.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 24));
 		mycolorlabel.setBounds(10, row * 45 + 110, row * 45 + 10, 30);
 		Board.add(mycolorlabel);
+		
+		//対戦相手名表示
+		opponentnamelabel = new JLabel();
 
 		add(Board);
 		Board.repaint();
@@ -1587,8 +1596,8 @@ public class Client extends JFrame implements MouseListener {
 
 		//自分の色表示
 		mycolorlabel = new JLabel("あなたは" + mycolor);
-		turnLabel.setForeground(text);
-		turnLabel.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 24));
+		mycolorlabel.setForeground(text);
+		mycolorlabel.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 24));
 		mycolorlabel.setBounds(10, row * 45 + 110, row * 45 + 10, 30);
 		Board.add(mycolorlabel);
 
