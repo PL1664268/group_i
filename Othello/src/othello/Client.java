@@ -70,7 +70,7 @@ public class Client extends JFrame implements MouseListener {
 	JButton surrenderyes = new JButton();
 	JButton surrenderno = new JButton();
 	JLabel opponentsurrender = new JLabel();
-	
+
 
 	 /*********通信属性*********/
 	  //private Receive receive;  //入力ストリーム用内部クラスのインスタンス変数
@@ -609,7 +609,7 @@ public class Client extends JFrame implements MouseListener {
 
 		//名前の設定
 		for(int i = 0;i<arraysize;i++) {
-		
+
 			if(!(otherPlayer[i].getName().equals(myPlayer.getName()))) {
 				player[i].setText(otherPlayer[i].getName());
 			}
@@ -1116,26 +1116,26 @@ public class Client extends JFrame implements MouseListener {
 		        	  		  if(playerlist.isEmpty())
 		        	  			  System.out.println("This is empty");
 		        		      System.out.println("PlayerArraylistを作成:Receive");
-	
+
 		        		      String readArraySize = in.readLine();
 		        		      readArraySize = readArraySize.replaceAll("[^0-9]", "");
 		        		      int i = Integer.parseInt(readArraySize);
 		        		      System.out.println(i);
-		        		      
+
 		        		      for(int j=0;j<i;j++) {
 		        		    	  	  player = (Player)ois.readObject();
 		        		    	  	  playerlist.add(player);
 		        		      }
 
 		        		      otherPlayer = playerlist.toArray(new Player[0]);
-		        		      
+
 		        		      arraysize = Integer.parseInt(readArraySize);
-		        		      
+
 		        		      gamewaiting();
 		  //     			  matching.repaint();
 
 		        	  	}
-			        	  	}
+
 		        	  	else if(inputLine.equals("requestGame")) {
 		            		System.out.println("申し込みを受信");
 		            		playernumber = Integer.parseInt(in.readLine());
@@ -1155,10 +1155,13 @@ public class Client extends JFrame implements MouseListener {
 		            		inputLine = in.readLine();
 		            		System.out.println(inputLine);
 		            		if(inputLine.equals("Yes")) {
-		            			opponentnamestring = in.readLine();
+		            			System.out.println("start match");
 		            			
+		            			opponentnamestring = in.readLine();
+
 		            			mycolor = "black";
 
+		            			System.out.println("start match");
 		            			playothello();
 		            			matching.removeAll();
 
@@ -1174,7 +1177,7 @@ public class Client extends JFrame implements MouseListener {
 		        	  	System.out.println(color);
 		        	  	int grid = Integer.parseInt(in.readLine());
 		        	  	System.out.println(grid);
-		        	  	if(grid < 64) { 
+		        	  	if(grid < 64) {
 		        	  		boolean opponentputstone = game.putStone(grid, color);
 		        	  		if(opponentputstone == true) {
 		        	  			game.chengeTurn();
@@ -1187,8 +1190,14 @@ public class Client extends JFrame implements MouseListener {
 		        	  		Board.add(opponentsurrender);
 		        	  		Board.add(quitgame);
 		        			Board.repaint();
+		        			if(mycolor.equals("white")) {
+		        				winner="white";
+		        			}
+		        			else if(mycolor.equals("black")) {
+		        				winner="black";
+		        			}
 		        	  	}
-		        	  	if(playerisgameover == true && opponentisgameover == true) {
+		        	  	if(!(playerisgameover == true && opponentisgameover == true)) {
 			        	  	System.out.println("putstone完了");
 			        	  	updateDisp();
 			        	  	opponentisgameover = game.isGameover(color,game.getGrids());
@@ -1450,13 +1459,13 @@ public class Client extends JFrame implements MouseListener {
 				 Board.repaint();
 			 }
 		});
-		
+
 		//本当に降参しますか？文
 		reallysurrender = new JLabel("Really?");
 		reallysurrender.setForeground(text);
 		reallysurrender.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 24));
 		reallysurrender.setBounds(650,95,200,30);
-		
+
 		//降参Yesボタン
 		surrenderyes = new JButton("Yes");
 		surrenderyes.setForeground(text);
@@ -1465,8 +1474,8 @@ public class Client extends JFrame implements MouseListener {
 		surrenderyes.setBounds(600,140,90,30);
 		surrenderyes.setOpaque(true);
 		surrenderyes.setBorderPainted(false);
-		
-		
+
+
 		//降参Noボタン
 		surrenderno = new JButton("No");
 		surrenderno.setForeground(text);
@@ -1475,13 +1484,13 @@ public class Client extends JFrame implements MouseListener {
 		surrenderno.setBounds(700,140,90,30);
 		surrenderno.setOpaque(true);
 		surrenderno.setBorderPainted(false);
-		
+
 		surrenderyes.addActionListener(new ActionListener() { // 降参Yesボタンを押した時の処理
 			 public void actionPerformed(ActionEvent as) {
 				 PutStoneInformatin(65, mycolor);
 			 }
 		});
-		
+
 		surrenderno.addActionListener(new ActionListener() { // 降参Noボタンを押した時の処理
 			 public void actionPerformed(ActionEvent as) {
 				 Board.removeAll();
@@ -1489,7 +1498,7 @@ public class Client extends JFrame implements MouseListener {
 				 Board.repaint();
 			 }
 		});
-		
+
 		//対戦相手が降参しました
 		opponentsurrender = new JLabel("Opponent reblogged surrender");
 		opponentsurrender.setForeground(text);
@@ -1527,7 +1536,7 @@ public class Client extends JFrame implements MouseListener {
 		mycolorlabel.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 24));
 		mycolorlabel.setBounds(50,360, 200, 30);
 		Board.add(mycolorlabel);
-		
+
 		//対戦相手名表示
 		opponentnamelabel = new JLabel("VS " + opponentnamestring);
 		opponentnamelabel.setForeground(text);
@@ -1646,13 +1655,13 @@ public class Client extends JFrame implements MouseListener {
 						 Board.repaint();
 					 }
 				});
-				
+
 				//本当に降参しますか？文
 				reallysurrender = new JLabel("Really?");
 				reallysurrender.setForeground(text);
 				reallysurrender.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 24));
 				reallysurrender.setBounds(650,95,200,30);
-				
+
 				//降参Yesボタン
 				surrenderyes = new JButton("Yes");
 				surrenderyes.setForeground(text);
@@ -1661,8 +1670,8 @@ public class Client extends JFrame implements MouseListener {
 				surrenderyes.setBounds(600,140,90,30);
 				surrenderyes.setOpaque(true);
 				surrenderyes.setBorderPainted(false);
-				
-				
+
+
 				//降参Noボタン
 				surrenderno = new JButton("No");
 				surrenderno.setForeground(text);
@@ -1671,7 +1680,7 @@ public class Client extends JFrame implements MouseListener {
 				surrenderno.setBounds(700,140,90,30);
 				surrenderno.setOpaque(true);
 				surrenderno.setBorderPainted(false);
-				
+
 				surrenderyes.addActionListener(new ActionListener() { // 降参Yesボタンを押した時の処理
 					 public void actionPerformed(ActionEvent as) {
 						 System.out.println("降参しました");
@@ -1686,7 +1695,7 @@ public class Client extends JFrame implements MouseListener {
 						 Board.repaint();
 					 }
 				});
-				
+
 				surrenderno.addActionListener(new ActionListener() { // 降参Noボタンを押した時の処理
 					 public void actionPerformed(ActionEvent as) {
 						 Board.removeAll();
@@ -1694,7 +1703,7 @@ public class Client extends JFrame implements MouseListener {
 						 Board.repaint();
 					 }
 				});
-				
+
 				//対戦相手が降参しました
 				opponentsurrender = new JLabel("Opponent reblogged surrender");
 				opponentsurrender.setForeground(text);
@@ -1732,7 +1741,7 @@ public class Client extends JFrame implements MouseListener {
 				mycolorlabel.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 24));
 				mycolorlabel.setBounds(50,360, 200, 30);
 				Board.add(mycolorlabel);
-				
+
 				//対戦相手名表示
 				opponentnamelabel = new JLabel("VS " + opponentnamestring);
 				opponentnamelabel.setForeground(text);

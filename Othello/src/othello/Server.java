@@ -80,15 +80,15 @@ public class Server {
 								online[ThreadNo]=true;
 							}
 							else if(msg.equals("notPermit")) {
-								System.out.println("hello");
-								p--;
+								running = false;
+								//p--;
 							}
 
 						}
 
 						else if(inputLine.equals("logout")) {
 							running=false;
-							p--;
+							;//p--;
 						}
 
 						/*  アカウント作成のリクエストなら  */
@@ -102,6 +102,10 @@ public class Server {
 						    /* 作成できるなら、オンライン状態に追加する  */
 							if(msg.equals("permit")) {
 								online[ThreadNo]=true;
+							}
+							else if(msg.equals("notPermit")) {
+								running = false;
+								//p--;
 							}
 
 						}
@@ -128,8 +132,15 @@ public class Server {
 
 								game_online_list.add(player);      /*  自分自身を待ち状態リストに入れ */
 								oos.reset();
-								oos.writeObject(game_online_list); /*  クライアントにリストを送信     */
-								oos.flush();
+								out.flush();
+								out.println(String.valueOf(game_online_list.size()));
+								out.flush();
+
+								for(Player p:game_online_list) {
+									oos.writeObject(p); /*  クライアントにリストを送信     */
+									oos.flush();
+								}
+
 								out.println(String.valueOf(game_online_list.size()));  /*  リストのサイズも送信  */
 								out.flush();
 								//game_online_flag=true;
@@ -148,14 +159,21 @@ public class Server {
 								out.println("upDate");
 								out.flush();
 								System.out.println("updataオブジェクト送信前"+game_online_list.size());
+
+								out.flush();
+								out.println(String.valueOf(game_online_list.size()));
+								out.flush();
+
+								System.out.println(String.valueOf(game_online_list.size()));
+
 								oos.reset();
-								oos.writeObject(game_online_list);  /* 現在の待ち状態リストを送る  */
-								oos.flush();
-								//out.flush();
-								System.out.println("updataオブジェクト送信後");
-								System.out.println("なぜかy が送られる問題:"+String.valueOf(game_online_list.size()));
-								//out.println(String.valueOf(game_online_list.size()));  /*  リストのサイズも送信  */
-								out.println(game_online_list.size());
+								for(Player p:game_online_list) {
+									oos.writeObject(p); /*  クライアントにリストを送信     */
+									oos.flush();
+									System.out.println(p.getName());
+								}
+
+								out.println(String.valueOf(game_online_list.size()));
 								out.flush();
 
 						}
@@ -181,12 +199,14 @@ public class Server {
 
 						/*  申し込に対する答えなら  */
 						else if(inputLine.equals("Answer")) {
-							String ans = br.readLine(); /* 答えを受け取り、申し込み元に送信  */
+							String ans = br.readLine(); /* 答えを受け取り、申し込み元に送信  */	
 							String name = br.readLine();
 							if(ans.equals("Yes")) {
 								receiveThread[map.get(player).ThreadNo].sendMessage("Answer");
 								receiveThread[map.get(player).ThreadNo].sendMessage("Yes");
 								receiveThread[map.get(player).ThreadNo].sendMessage(name);
+							//	game_online_list.remove(player);
+							//	game_online_list.remove(map.get(player));
 							}
 							else if(ans.equals("No")) {
 								receiveThread[map.get(player).ThreadNo].sendMessage("Answer");
@@ -205,17 +225,10 @@ public class Server {
 
 						/*  データ更新のリクエストなら  */
 						else if(inputLine.equals("dataUpdate")){
-							Player newPlayer;
-							try {
-								//br.close();
-								//ois = new ObjectInputStream(socket.getInputStream());
-								newPlayer = (Player)ois.readObject();
-								//ois.close();
-								//br = new BufferedReader(sisr);
-								dataUpdate(newPlayer);
-							} catch (ClassNotFoundException e) {
-								e.printStackTrace();
-							}
+
+								String user_name = br.readLine();
+								String result    = br.readLine();
+								dataUpdate(user_name,result);
 
 						}
 					}
@@ -406,7 +419,7 @@ public class Server {
 	}
 
 	/*  データ更新  */
-	public void dataUpdate(Player newPlayer) {
+	public void dataUpdate(String user_name, String result) {
 		Player player;
 		ObjectInputStream inObject;
 		PlayerArrayList<Player> arr = new PlayerArrayList<Player>();
@@ -419,8 +432,14 @@ public class Server {
             	inObject = new ObjectInputStream(inFile);
             	player = (Player)inObject.readObject(); /* オブジェクトを読み込む  */
 
-            	if(player.getName().equals("user2")){
-            		player = newPlayer;  /*ユーザ名が一致したら、新データを持つオブジェクトを保存*/
+            	if(player.getName().equals(user_name)){
+            		if(result.equals("WIN")) {
+            			player.setWin(player.getWin()+1);
+            		}else if(result.equals("LOSE")) {
+            			player.setDefeat(player.getDefeat()+1);
+            		}else if(result.equals("DRAW")) {
+            			player.setDraw(player.getDraw()+1);
+            		}
             	}
             	arr.add(player);  /* 1度すべてのオブジェクトファイルから読み込み、リストとする */
             }
