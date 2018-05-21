@@ -50,6 +50,7 @@ public class Client extends JFrame implements MouseListener {
 	private boolean opponentisgameover = false;
 	private int opponentotherplayernumber;
 	private String opponentnamestring;
+	private String winner;
 
 
 	int row = 8; //getRowメソッドによりオセロ盤の縦横マスの数を取得
@@ -68,6 +69,7 @@ public class Client extends JFrame implements MouseListener {
 	JLabel reallysurrender = new JLabel();
 	JButton surrenderyes = new JButton();
 	JButton surrenderno = new JButton();
+	JLabel opponentsurrender = new JLabel();
 	
 
 	 /*********通信属性*********/
@@ -1161,21 +1163,31 @@ public class Client extends JFrame implements MouseListener {
 		        	  	System.out.println(color);
 		        	  	int grid = Integer.parseInt(in.readLine());
 		        	  	System.out.println(grid);
-		        	  	if(grid != 64) { //変更点
+		        	  	if(grid < 64) { 
 		        	  		boolean opponentputstone = game.putStone(grid, color);
 		        	  		if(opponentputstone == true) {
 		        	  			game.chengeTurn();
 		        	  		}
 		        	  	}
-		        	  	System.out.println("putstone完了");
-		        	  	updateDisp();
-		        	  	opponentisgameover = game.isGameover(color,game.getGrids());
-		        	  	playerisgameover  = game.isGameover(game.getTurn(), game.getGrids());
-		        	  	if(playerisgameover == true) {
-		        	  		PutStoneInformatin(64, game.getTurn());
+		        	  	else if(grid == 65) {//降参処理
+		        	  		System.out.println("降参処理に入りました");
+		        	  		playerisgameover = true;
+		        	  		opponentisgameover = true;
+		        	  		Board.add(opponentsurrender);
+		        	  		Board.add(quitgame);
+		        			Board.repaint();
 		        	  	}
-		        	  	System.out.println("updatedisp完了");
-		        	  	Board.repaint();
+		        	  	if(playerisgameover == true && opponentisgameover == true) {
+			        	  	System.out.println("putstone完了");
+			        	  	updateDisp();
+			        	  	opponentisgameover = game.isGameover(color,game.getGrids());
+			        	  	playerisgameover  = game.isGameover(game.getTurn(), game.getGrids());
+			        	  	if(playerisgameover == true) {
+			        	  		PutStoneInformatin(64, game.getTurn());
+			        	  	}
+			        	  	System.out.println("updatedisp完了");
+			        	  	Board.repaint();
+		        	  	}
 		        	  	if(playerisgameover == true && opponentisgameover == true) {
 		        	  		stopRecFlag =1;
 		        	  		System.out.println("ゲーム終了です");
@@ -1453,23 +1465,25 @@ public class Client extends JFrame implements MouseListener {
 		surrenderno.setOpaque(true);
 		surrenderno.setBorderPainted(false);
 		
-		surrenderyes.addActionListener(new ActionListener() { // 降参ボタンを押した時の処理
+		surrenderyes.addActionListener(new ActionListener() { // 降参Yesボタンを押した時の処理
 			 public void actionPerformed(ActionEvent as) {
-				 Board.add(reallysurrender);
-				 Board.add(surrenderyes);
-				 Board.add(surrenderno);
+				 PutStoneInformatin(65, mycolor);
+			 }
+		});
+		
+		surrenderno.addActionListener(new ActionListener() { // 降参Noボタンを押した時の処理
+			 public void actionPerformed(ActionEvent as) {
+				 Board.removeAll();
+				 updateDisp();
 				 Board.repaint();
 			 }
 		});
 		
-		surrenderno.addActionListener(new ActionListener() { // 降参ボタンを押した時の処理
-			 public void actionPerformed(ActionEvent as) {
-				 Board.add(reallysurrender);
-				 Board.add(surrenderyes);
-				 Board.add(surrenderno);
-				 Board.repaint();
-			 }
-		});
+		//対戦相手が降参しました
+		opponentsurrender = new JLabel("Opponent reblogged surrender");
+		opponentsurrender.setForeground(text);
+		opponentsurrender.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 24));
+		opponentsurrender.setBounds(370,450,300,30);
 
 		//ゲーム終了ボタン
 				quitgame = new JButton("Game is over!");
@@ -1576,7 +1590,7 @@ public class Client extends JFrame implements MouseListener {
 			if(grids[i]==0){ buttonArray[i] = new JButton(boardIcon);}//盤面状態に応じたアイコンを設定
 
 			// ボタンを配置する
-			int x = (i % row) * 45 + 250;
+			int x = (i % row) * 45 + 220;
 			int y = (int) 10 + (i / row)*45 + 30;
 			buttonArray[i].setBounds(x, y, 45, 45);//ボタンの大きさと位置を設定する．
 			buttonArray[i].addMouseListener(this);//マウス操作を認識できるようにする
@@ -1591,11 +1605,11 @@ public class Client extends JFrame implements MouseListener {
 		}
 
 		//黒の数
-		JLabel black = new JLabel("Black : " + game.black());
-		black.setForeground(text);
-		black.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 24));
-		black.setBounds(65,100,200,20);
-		Board.add(black);
+				JLabel black = new JLabel("Black : " + game.black());
+				black.setForeground(text);
+				black.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 24));
+				black.setBounds(65,100,200,20);
+				Board.add(black);
 
 				//白の数
 				JLabel white = new JLabel("White : " + game.white());
@@ -1604,65 +1618,117 @@ public class Client extends JFrame implements MouseListener {
 				white.setBounds(65,150,200,20);
 				Board.add(white);
 
+				//降参ボタン
+				stop = new JButton("Surrender");
+				stop.setForeground(text);
+				stop.setBackground(button);
+				stop.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 24));
+				stop.setBounds(610,45,170,35);
+				stop.setOpaque(true);
+				stop.setBorderPainted(false);
+				Board.add(stop);
+				stop.addActionListener(new ActionListener() { // 降参ボタンを押した時の処理
+					 public void actionPerformed(ActionEvent as) {
+						 Board.add(reallysurrender);
+						 Board.add(surrenderyes);
+						 Board.add(surrenderno);
+						 Board.repaint();
+					 }
+				});
+				
+				//本当に降参しますか？文
+				reallysurrender = new JLabel("Really?");
+				reallysurrender.setForeground(text);
+				reallysurrender.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 24));
+				reallysurrender.setBounds(650,95,200,30);
+				
+				//降参Yesボタン
+				surrenderyes = new JButton("Yes");
+				surrenderyes.setForeground(text);
+				surrenderyes.setBackground(button);
+				surrenderyes.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 24));
+				surrenderyes.setBounds(600,140,90,30);
+				surrenderyes.setOpaque(true);
+				surrenderyes.setBorderPainted(false);
+				
+				
+				//降参Noボタン
+				surrenderno = new JButton("No");
+				surrenderno.setForeground(text);
+				surrenderno.setBackground(button);
+				surrenderno.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 24));
+				surrenderno.setBounds(700,140,90,30);
+				surrenderno.setOpaque(true);
+				surrenderno.setBorderPainted(false);
+				
+				surrenderyes.addActionListener(new ActionListener() { // 降参Yesボタンを押した時の処理
+					 public void actionPerformed(ActionEvent as) {
+						 System.out.println("降参しました");
+						 PutStoneInformatin(65, mycolor);
+						 Board.add(quitgame);
+						 if(mycolor.equals("black")) {
+							 winner = "white";
+						 }
+						 if(mycolor.equals("white")) {
+							 winner = "black";
+						 }
+						 Board.repaint();
+					 }
+				});
+				
+				surrenderno.addActionListener(new ActionListener() { // 降参Noボタンを押した時の処理
+					 public void actionPerformed(ActionEvent as) {
+						 Board.removeAll();
+						 updateDisp();
+						 Board.repaint();
+					 }
+				});
+				
+				//対戦相手が降参しました
+				opponentsurrender = new JLabel("Opponent reblogged surrender");
+				opponentsurrender.setForeground(text);
+				opponentsurrender.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 24));
+				opponentsurrender.setBounds(370,450,300,30);
+
+				//ゲーム終了ボタン
+						quitgame = new JButton("Game is over!");
+						quitgame.setForeground(text);
+						quitgame.setBackground(button);
+						quitgame.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 24));
+						quitgame.setBounds(370,450,250,50);
+						quitgame.setOpaque(true);
+						quitgame.setBorderPainted(false);
+						quitgame.addActionListener(new ActionListener() { // ゲーム終了ボタンを押した時の処理
+						 public void actionPerformed(ActionEvent as) {
+							stopRecFlag = 1;
+							if(winner.equals(null))
+							System.out.println(winner + "の勝ち");
+							playresult(winner);
+							Board.removeAll();
+							 }
+						});
+
+				//手番表示
+				turnLabel = new JLabel(game.getTurn() + "'s turn");
+				turnLabel.setForeground(text);
+				turnLabel.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 24));
+				turnLabel.setBounds(50, 320, 200, 30);
+				Board.add(turnLabel);
+
+				//自分の色表示
+				mycolorlabel = new JLabel("You are " + mycolor);
+				mycolorlabel.setForeground(text);
+				mycolorlabel.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 24));
+				mycolorlabel.setBounds(50,360, 200, 30);
+				Board.add(mycolorlabel);
+				
 				//対戦相手名表示
 				opponentnamelabel = new JLabel("VS " + opponentnamestring);
 				opponentnamelabel.setForeground(text);
 				opponentnamelabel.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 24));
-				opponentnamelabel.setBounds(10,50, 200, 30);
+				opponentnamelabel.setBounds(65,45, 200, 30);
 				Board.add(opponentnamelabel);
 
-
-		//降参ボタン
-		stop = new JButton("Surrender");
-		stop.setForeground(text);
-		stop.setBackground(button);
-		stop.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 24));
-		stop.setBounds(475,440,250,50);
-		stop.setOpaque(true);
-		stop.setBorderPainted(false);
-		Board.add(stop);
-		stop.addActionListener(new ActionListener() { // 降参ボタンを押した時の処理
-		 public void actionPerformed(ActionEvent as) {
-				Board.removeAll();
-				userhome();
-			 }
-		});
-
-		//ゲーム終了ボタン
-		quitgame = new JButton("Game is over!");
-		quitgame.setForeground(text);
-		quitgame.setBackground(button);
-		quitgame.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 24));
-		quitgame.setBounds(370,450,250,50);
-		quitgame.setOpaque(true);
-		quitgame.setBorderPainted(false);
-		quitgame.addActionListener(new ActionListener() { // 降参ボタンを押した時の処理
-		 public void actionPerformed(ActionEvent as) {
-			stopRecFlag = 1;
-			String winner = game.checkWinner();
-			System.out.println(winner + "の勝ち");
-			playresult(winner);
-			Board.removeAll();
-			 }
-		});
-
-
-
-
-		//手番表示
-		System.out.println("手番は" + game.getTurn());
-		turnLabel.setText(game.getTurn() + "の番です");
-		turnLabel.setForeground(text);
-		turnLabel.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 24));
-		turnLabel.setBounds(10, row * 45 + 100, row * 45 + 10, 30);
-		Board.add(turnLabel);
-
-		//自分の色表示
-		mycolorlabel = new JLabel("あなたは" + mycolor);
-		mycolorlabel.setForeground(text);
-		mycolorlabel.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 24));
-		mycolorlabel.setBounds(10, row * 45 + 110, row * 45 + 10, 30);
-		Board.add(mycolorlabel);
 
 		add(Board);
 		setVisible(true);
