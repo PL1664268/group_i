@@ -80,15 +80,15 @@ public class Server {
 								online[ThreadNo]=true;
 							}
 							else if(msg.equals("notPermit")) {
-								System.out.println("hello");
-								p--;
+								running = false;
+								//p--;
 							}
 
 						}
 
 						else if(inputLine.equals("logout")) {
 							running=false;
-							p--;
+							//p--;
 						}
 
 						/*  アカウント作成のリクエストなら  */
@@ -102,6 +102,10 @@ public class Server {
 						    /* 作成できるなら、オンライン状態に追加する  */
 							if(msg.equals("permit")) {
 								online[ThreadNo]=true;
+							}
+							else if(msg.equals("notPermit")) {
+								running = false;
+								//p--;
 							}
 
 						}
@@ -203,17 +207,10 @@ public class Server {
 
 						/*  データ更新のリクエストなら  */
 						else if(inputLine.equals("dataUpdate")){
-							Player newPlayer;
-							try {
-								//br.close();
-								//ois = new ObjectInputStream(socket.getInputStream());
-								newPlayer = (Player)ois.readObject();
-								//ois.close();
-								//br = new BufferedReader(sisr);
-								dataUpdate(newPlayer);
-							} catch (ClassNotFoundException e) {
-								e.printStackTrace();
-							}
+
+								String user_name = br.readLine();
+								String result    = br.readLine();
+								dataUpdate(user_name,result);
 
 						}
 					}
@@ -404,7 +401,7 @@ public class Server {
 	}
 
 	/*  データ更新  */
-	public void dataUpdate(Player newPlayer) {
+	public void dataUpdate(String user_name, String result) {
 		Player player;
 		ObjectInputStream inObject;
 		PlayerArrayList<Player> arr = new PlayerArrayList<Player>();
@@ -417,8 +414,14 @@ public class Server {
             	inObject = new ObjectInputStream(inFile);
             	player = (Player)inObject.readObject(); /* オブジェクトを読み込む  */
 
-            	if(player.getName().equals("user2")){
-            		player = newPlayer;  /*ユーザ名が一致したら、新データを持つオブジェクトを保存*/
+            	if(player.getName().equals(user_name)){
+            		if(result.equals("WIN")) {
+            			player.setWin(player.getWin()+1);
+            		}else if(result.equals("LOSE")) {
+            			player.setDefeat(player.getDefeat()+1);
+            		}else if(result.equals("DRAW")) {
+            			player.setDraw(player.getDraw()+1);
+            		}
             	}
             	arr.add(player);  /* 1度すべてのオブジェクトファイルから読み込み、リストとする */
             }
