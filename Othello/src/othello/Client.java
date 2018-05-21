@@ -50,6 +50,7 @@ public class Client extends JFrame implements MouseListener {
 	private boolean opponentisgameover = false;
 	private int opponentotherplayernumber;
 	private String opponentnamestring;
+	private String opponentratestring;
 	private String winner;
 
 
@@ -875,6 +876,7 @@ public class Client extends JFrame implements MouseListener {
 				      out.println("requestGame");
 				      out.println(playerlist.get(3).ThreadNo);
 				      out.println(playerlist.indexOf(myPlayer));
+				      
 				      out.flush();
 				      out.println(myPlayer.getName());
 				      System.out.println("name : " + myPlayer.getName());
@@ -984,6 +986,8 @@ public class Client extends JFrame implements MouseListener {
 				      out.println("Answer");
 				      out.println("Yes");
 				      out.println(myPlayer.getName());
+				      out.println(String.valueOf(myPlayer.getRate()));
+				      
 				      out.flush();
 
 				      System.out.println("Yesを送信しました");
@@ -1142,7 +1146,8 @@ public class Client extends JFrame implements MouseListener {
 
 		            		System.out.println("playernumber : " + playernumber);
 		            		opponentnamestring = in.readLine();
-		            		opponentname.setText(opponentnamestring + "(" + in.readLine() + ")");
+		            		opponentratestring = in.readLine();
+		            		opponentname.setText(opponentnamestring + "(" + opponentratestring + ")");
 		            		matching.add(opponentname);
 		            		matching.add(Yes);
 		            		matching.add(No);
@@ -1158,6 +1163,8 @@ public class Client extends JFrame implements MouseListener {
 		            			System.out.println("start match");
 		            			
 		            			opponentnamestring = in.readLine();
+		            			
+		            			opponentratestring = in.readLine();
 
 		            			mycolor = "black";
 
@@ -1823,14 +1830,9 @@ public class Client extends JFrame implements MouseListener {
 		System.out.println("result : " + result);
 
 		//レート計算
-		for(int k=0;k<otherPlayer.length;k++) {
-			if(opponentotherplayernumber == otherPlayer[k].ThreadNo) {
-				System.out.println(opponentotherplayernumber);
-				opponent = otherPlayer[k];
-			}
-		}
+		
 		if(!(result.equals("DRAW"))){
-			 myrate = calRating(myPlayer.getRate(), 1500, iswin);
+			 myrate = calRating(myPlayer.getRate(), Double.parseDouble(opponentratestring), iswin);
 			 myPlayer.setRate(myrate);
 		}
 
@@ -1881,6 +1883,7 @@ public class Client extends JFrame implements MouseListener {
 				      //oos = new ObjectOutputStream(soc.getOutputStream());
 				     out.println(myPlayer.getName());
 				     out.println(result);
+				     out.println(String.valueOf(myPlayer.getRate()));
 				     out.flush();
 				      //ois.close();
 
