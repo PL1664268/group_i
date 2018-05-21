@@ -1167,6 +1167,9 @@ public class Client extends JFrame implements MouseListener {
 		        	  	System.out.println("updatedisp完了");
 		        	  	Board.repaint();
 		        	  	if(playerisgameover == true && opponentisgameover == true) {
+		        	  		stopRecFlag =1;
+		        	  		System.out.println("ゲーム終了です");
+		        	  		//updateDisp();
 		        			Board.add(quitgame);
 		        			Board.repaint();
 		        		}
@@ -1577,11 +1580,15 @@ public class Client extends JFrame implements MouseListener {
 		//手番表示
 		System.out.println("手番は" + game.getTurn());
 		turnLabel.setText(game.getTurn() + "の番です");
+		turnLabel.setForeground(text);
+		turnLabel.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 24));
 		turnLabel.setBounds(10, row * 45 + 100, row * 45 + 10, 30);
 		Board.add(turnLabel);
 
 		//自分の色表示
 		mycolorlabel = new JLabel("あなたは" + mycolor);
+		turnLabel.setForeground(text);
+		turnLabel.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 24));
 		mycolorlabel.setBounds(10, row * 45 + 110, row * 45 + 10, 30);
 		Board.add(mycolorlabel);
 
@@ -1610,6 +1617,8 @@ public class Client extends JFrame implements MouseListener {
 			}
 		}
 		if(playerisgameover == true && opponentisgameover == true) {
+			System.out.println("ゲーム終了です");
+			//updateDisp();
 			Board.add(quitgame);
 			Board.repaint();
 		}
@@ -1712,11 +1721,12 @@ public class Client extends JFrame implements MouseListener {
 				      //out.close();
 
 				      //oos = new ObjectOutputStream(soc.getOutputStream());
-				      oos.writeObject(myPlayer);
-				      oos.flush();
+				     out.println(myPlayer.getName());
+				     out.println(result);
+				     out.flush();
 				      //ois.close();
 
-				    }catch(IOException e) {
+				    }catch(Exception e) {
 				      System.out.println(e);
 				      System.exit(1);
 				    }
