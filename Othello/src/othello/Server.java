@@ -160,10 +160,17 @@ public class Server {
 
 							String opponentstring = String.valueOf(br.read());
 							int opponent = Integer.parseInt(opponentstring)-48;  /*  対局者のThreadNoと  */
-							String applier = String.valueOf(br.read());           /*  自身のlist番号を受け取り */
+							String applier = String.valueOf(br.read());/*  自身のlist番号を受け取り */
+							String syoriyou = String.valueOf(br.read());
+							String syoriyou2 = String.valueOf(br.read());
+							String syoriyou3 = String.valueOf(br.readLine());
+							String name = String.valueOf(br.readLine());
+							System.out.println("name : " + name);
+							String rate = String.valueOf(br.readLine());
+							System.out.println("rate : " + rate);
 							map.put(player, receiveThread[opponent].player);        /* HashMapでお互いを結ぶ  */
 							receiveThread[opponent].map.put(receiveThread[opponent].player, player);
-							requestGame(opponent,applier);    /* 対戦を申し込む */
+							requestGame(opponent,applier,name,rate);    /* 対戦を申し込む */
 							System.out.println("相手側に申し込み送信完了");
 						}
 
@@ -433,9 +440,13 @@ public class Server {
 	}
 
 	/*  対局申し込み転送  */
-	public void requestGame(int opponent,String applier_list_num){
+	public void requestGame(int opponent,String applier_list_num,String name,String rate){
 		receiveThread[opponent].sendMessage("requestGame");
 		receiveThread[opponent].sendMessage(applier_list_num);
+		receiveThread[opponent].sendMessage(name);
+		System.out.println("name : " + name);
+		receiveThread[opponent].sendMessage(rate);
+		System.out.println("rate : " + rate);
 	}
 
 	/*  操作情報を転送  */
