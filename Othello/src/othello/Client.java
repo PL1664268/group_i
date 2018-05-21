@@ -1037,11 +1037,13 @@ public class Client extends JFrame implements MouseListener {
 		});
 
 		setVisible(true);
+		matching.repaint();
 	}
 
 	//対局待ちプレイヤー受付
 	  @SuppressWarnings("unchecked")
 	public void otherPlayerRequest() {
+		  Player player;
 	    try {
 	      //out = new PrintWriter(new OutputStreamWriter(soc.getOutputStream()));
 	      //ois = new ObjectInputStream(soc.getInputStream());
@@ -1053,7 +1055,17 @@ public class Client extends JFrame implements MouseListener {
 
 	      playerlist = new PlayerArrayList<Player>();
 	      System.out.println("Arraylistを作成:otherPlayerRequest");
-	      playerlist = (PlayerArrayList<Player>)(ois.readObject());
+
+	      String readArraySize = in.readLine();
+	      readArraySize = readArraySize.replaceAll("[^0-9]", "");
+	      int i = Integer.parseInt(readArraySize);
+	      System.out.println(i);
+	      for(int j=0;j<i;j++) {
+	    	  	  player = (Player)ois.readObject();
+	    	  	  playerlist.add(player);
+	    	  	  System.out.println(playerlist.get(j).getName());
+	      }
+
 	      System.out.println("PlayerArraylist受信");
 
 	      otherPlayer = (Player[])playerlist.toArray(new Player[0]);
@@ -1064,15 +1076,16 @@ public class Client extends JFrame implements MouseListener {
 		  System.out.println("変換後");
 		  System.out.println("オンライン人数" + arraysize);
 
-		  for(int i=0;i<arraysize;i++) {
+		/*  for(int i=0;i<arraysize;i++) {
 			  System.out.println("otheplayer[" + i + "]:" + otherPlayer[i].getName());
-		  }
+		  }*/
 
 
 	      //out.close();
 	      //ois.close();
 	    }catch(Exception e) {
 	      System.out.println(e);
+	      e.printStackTrace();
 	     // System.exit(1);
 	    }
 	    }
@@ -1098,33 +1111,31 @@ public class Client extends JFrame implements MouseListener {
 
 		          if(inputLine != null) {
 		        	  	if(inputLine.equals("upDate")) {
-		        	  		  playerlist = new PlayerArrayList<Player>();
+		        	  		  Player player;
+		        	  		  playerlist.removeAll(playerlist);
+		        	  		  if(playerlist.isEmpty())
+		        	  			  System.out.println("This is empty");
 		        		      System.out.println("PlayerArraylistを作成:Receive");
-		        		      playerlist = (PlayerArrayList<Player>)(ois.readObject());
-		        		      System.out.println("PlayerArraylist受信");
-		        		      for(int i=0;i<playerlist.size();i++) {
-		        		    	  System.out.println(playerlist.get(i).getName());
+	
+		        		      String readArraySize = in.readLine();
+		        		      readArraySize = readArraySize.replaceAll("[^0-9]", "");
+		        		      int i = Integer.parseInt(readArraySize);
+		        		      System.out.println(i);
+		        		      
+		        		      for(int j=0;j<i;j++) {
+		        		    	  	  player = (Player)ois.readObject();
+		        		    	  	  playerlist.add(player);
 		        		      }
 
 		        		      otherPlayer = playerlist.toArray(new Player[0]);
-
-		        		      String readArraySize = in.readLine();
-		        		      System.out.println(readArraySize);
-		        		      readArraySize = readArraySize.replaceAll("[^0-9]", "");
-		        		      System.out.println("修正後:"+readArraySize);
+		        		      
 		        		      arraysize = Integer.parseInt(readArraySize);
-		        			  System.out.println("test2");
-		        			  System.out.println(otherPlayer[0].getName());
-		        			  System.out.println("変換後");
-		        			  System.out.println("オンライン人数" + arraysize);
-		        			  System.out.println("otherPlayerのarraysize:"+otherPlayer.length);
-		        			  gamewaiting();
-		        			  matching.repaint();
+		        		      
+		        		      gamewaiting();
+		  //     			  matching.repaint();
 
-		        			  for(int i=0;i<arraysize;i++) {
-		        				  System.out.println("otheplayer[" + i + "]:" + otherPlayer[i].getName());
-		        			  }
 		        	  	}
+			        	  	}
 		        	  	else if(inputLine.equals("requestGame")) {
 		            		System.out.println("申し込みを受信");
 		            		playernumber = Integer.parseInt(in.readLine());
