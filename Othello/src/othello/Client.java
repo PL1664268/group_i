@@ -49,7 +49,7 @@ public class Client extends JFrame implements MouseListener {
 	private boolean playerisgameover = false;
 	private boolean opponentisgameover = false;
 	private int opponentotherplayernumber;
-	
+
 
 	int row = 8; //getRowメソッドによりオセロ盤の縦横マスの数を取得
 	JPanel Board = new JPanel();
@@ -485,6 +485,8 @@ public class Client extends JFrame implements MouseListener {
 
 		logout.addActionListener(new ActionListener() { // ログアウトボタンを押した時の処理
 			 public void actionPerformed(ActionEvent as) {
+				out.println("logout");
+				out.flush();
 				Login();
 				p.removeAll();
 			 }
@@ -745,7 +747,7 @@ public class Client extends JFrame implements MouseListener {
 		wanttoplay.setForeground(text);
 		wanttoplay.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 23));
 		wanttoplay.setBounds(500,160,300,30);
-		
+
 		//対局しますか？
 		doyouaccept.setText("Do you accept?");
 		doyouaccept.setForeground(text);
@@ -756,7 +758,7 @@ public class Client extends JFrame implements MouseListener {
 		denied.setForeground(text);
 		denied.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 23));
 		denied.setBounds(520,330,500,30);
-		
+
 
 		matching.add(player[0]);
 		matching.add(player[1]);
@@ -802,7 +804,7 @@ public class Client extends JFrame implements MouseListener {
 				      out.flush();
 				      opponentotherplayernumber = playerlist.get(0).ThreadNo;
 				      System.out.println("申し込み送信完了");
-				      
+
 				      matching.removeAll();
 				      gamewaiting();
 
@@ -973,7 +975,7 @@ public class Client extends JFrame implements MouseListener {
 				      out.println("Answer");
 				      out.println("Yes");
 				      out.flush();
-				      
+
 				      System.out.println("Yesを送信しました");
 
 				      //ストリームをクローズする
@@ -994,11 +996,11 @@ public class Client extends JFrame implements MouseListener {
 				      out.println("Answer");
 				      out.println("No");
 				      out.flush();
-				      
+
 				      matching.removeAll();
 				      gamewaiting();
 				      matching.repaint();
-				      
+
 				      //ストリームをクローズする
 				      //out.close();
 			 }
@@ -1116,7 +1118,7 @@ public class Client extends JFrame implements MouseListener {
 		        	  	else if(inputLine.equals("requestGame")) {
 		            		System.out.println("申し込みを受信");
 		            		playernumber = Integer.parseInt(in.readLine());
-		            		
+
 		            		System.out.println("playernumber : " + playernumber);
 		            		opponentname.setText(in.readLine() + "(" + in.readLine() + ")");
 		            		matching.add(opponentname);
@@ -1124,7 +1126,7 @@ public class Client extends JFrame implements MouseListener {
 		            		matching.add(No);
 		            		matching.add(wanttoplay);
 		            		matching.add(doyouaccept);
-		            		
+
 		            		matching.repaint();
 		              //他プレイヤーからの申し込み
 		            }  else if(inputLine.equals("Answer")) {
@@ -1221,7 +1223,7 @@ public class Client extends JFrame implements MouseListener {
 		System.out.println(String.valueOf(myPlayer.getWin()));
 		wincount.setForeground(text);
 		wincount.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 36));
-		wincount.setBounds(160,130,600,40);
+		wincount.setBounds(320,130,600,40);
 
 		//負け
 		JLabel lose = new JLabel("Lose ");
@@ -1233,7 +1235,7 @@ public class Client extends JFrame implements MouseListener {
 		JLabel losecount = new JLabel(String.valueOf(myPlayer.getDefeat()));
 		losecount.setForeground(text);
 		losecount.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 36));
-		losecount.setBounds(160,200,600,40);
+		losecount.setBounds(320,200,600,40);
 
 		//引き分け
 		JLabel draw = new JLabel("Draw ");
@@ -1245,7 +1247,7 @@ public class Client extends JFrame implements MouseListener {
 		JLabel drawcount = new JLabel(String.valueOf(myPlayer.getDraw()));
 		drawcount.setForeground(text);
 		drawcount.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 36));
-		drawcount.setBounds(160,270,600,40);
+		drawcount.setBounds(320,270,600,40);
 
 		//降参
 		JLabel surrender = new JLabel("Surrender ");
@@ -1257,7 +1259,7 @@ public class Client extends JFrame implements MouseListener {
 		JLabel surrendercount = new JLabel(String.valueOf(myPlayer.getSurrender()));
 		surrendercount.setForeground(text);
 		surrendercount.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 36));
-		surrendercount.setBounds(160,340,600,40);
+		surrendercount.setBounds(320,340,600,40);
 
 		//レート
 		JLabel rate = new JLabel("Your Rate");
@@ -1269,7 +1271,7 @@ public class Client extends JFrame implements MouseListener {
 		JLabel rating = new JLabel(String.valueOf(myPlayer.getRate()));
 		rating.setForeground(text);
 		rating.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 40));
-		rating.setBounds(500,170,600,40);
+		rating.setBounds(610,170,600,40);
 
 		//戻るボタン
 		JButton returntohome = new JButton("Home");
@@ -1410,7 +1412,7 @@ public class Client extends JFrame implements MouseListener {
 				userhome();
 			 }
 		});
-		
+
 		//ゲーム終了ボタン
 				quitgame = new JButton("Game is over!");
 				quitgame.setForeground(text);
@@ -1550,7 +1552,7 @@ public class Client extends JFrame implements MouseListener {
 				userhome();
 			 }
 		});
-		
+
 		//ゲーム終了ボタン
 		quitgame = new JButton("Game is over!");
 		quitgame.setForeground(text);
@@ -1568,8 +1570,8 @@ public class Client extends JFrame implements MouseListener {
 			Board.removeAll();
 			 }
 		});
-		
-		
+
+
 
 
 		//手番表示
