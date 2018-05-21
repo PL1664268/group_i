@@ -20,7 +20,7 @@ public class Server {
 	private int port; 											    /*  ポート番号  */
 	private boolean [] online; 									/*  クライアント接続状態  */
 	private int sum_of_threadNum=0;									/*  使われているスレッドの数  */
-	private int p;
+	private int p=1;
 	PlayerArrayList<Player> game_online_list = new PlayerArrayList<Player>(); 	/*  対戦待ち状態のArrayList  */
 	Receiver receiveThread[] = new Receiver[MAX];                   /*  受信クラス配列、スレッドの配列  */
 
@@ -40,8 +40,8 @@ public class Server {
 		private ObjectOutputStream oos;                            /*  オブジェクト出力ストリーム  */
 		private int ThreadNo;                                      /*  スレッド番号(プレイヤを識別するため)  */
 		private Player player = new Player("dammy", "dammy");
-		//private boolean game_online_flag = false;                 /*  対局待ちリストのためのフラグ*/
 		private String user_name;                                  /*  このスレッドを利用しているユーザ名 */
+		private boolean running=true;
 		Socket socket;
 		HashMap<Player,Player> map = new HashMap<Player,Player>(); /*  対戦中の相手と紐づけるためのHashMap  */
 
@@ -63,7 +63,7 @@ public class Server {
 		public void run(){
 			try{
 				/*  データを受信し続ける  */
-				while(true) {
+				while(running) {
 					String inputLine = br.readLine();
 					if (inputLine != null){                       /*  先頭メッセージ応じてメソッドを呼ぶ  */
 
@@ -84,6 +84,11 @@ public class Server {
 								p--;
 							}
 
+						}
+
+						else if(inputLine.equals("logout")) {
+							running=false;
+							p--;
 						}
 
 						/*  アカウント作成のリクエストなら  */
@@ -215,12 +220,17 @@ public class Server {
 				}
 			} catch (IOException e){ // 接続が切れたとき
 				System.err.println("プレイヤ " + ThreadNo + "との接続が切れました．");
-				game_online_list.remove(game_online_list.indexOf(player)); /*  対局待ち状態リストから削除する  */
+     		}finally {
+				try{
+					game_online_list.remove(game_online_list.indexOf(player)); /*  対局待ち状態リストから削除する  */
+				}catch(Exception ex) {
+				}
 				online[ThreadNo] = false;                                 /*  プレイヤの接続状態を更新する    */
 				printStatus();                                            /*  接続状態を出力する              */
 				receiveThread[ThreadNo]=null;                            /*  このThreadを空ける              */
-				if(sum_of_threadNum==ThreadNo) { sum_of_threadNum--;                                      /*  使ってるスレッド数を減らす      */
-				System.out.println("decrement");
+				if(sum_of_threadNum==ThreadNo) {
+					sum_of_threadNum--;                                      /*  使ってるスレッド数を減らす      */
+					System.out.println("decrement");
 				}
 			}
 		}
@@ -244,6 +254,8 @@ public class Server {
 			ServerSocket ss = new ServerSocket(port); /* サーバソケットを用意 */
 			while (true) {
 
+				Socket socket = ss.accept();        /* 新規接続を受け付ける     */
+
 				for (p = 1; p < MAX+1; p++){        /* 接続チェック */
 					if (receiveThread[p] == null)   /* 空いている場合 */
 			            break;
@@ -252,7 +264,6 @@ public class Server {
 				if (p == MAX+1)                     /* 空いていない場合 */
 			    	continue;                    /* 以下の処理をしない */
 
-				Socket socket = ss.accept();        /* 新規接続を受け付ける     */
 				System.out.println("start Thread"+p);
 				receiveThread[p] = new Receiver(socket, this, p);
 		        receiveThread[p].start( );
