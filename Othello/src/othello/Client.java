@@ -607,6 +607,7 @@ public class Client extends JFrame implements MouseListener {
 
 		//名前の設定
 		for(int i = 0;i<arraysize;i++) {
+		
 			if(!(otherPlayer[i].getName().equals(myPlayer.getName()))) {
 				player[i].setText(otherPlayer[i].getName());
 			}
@@ -1381,7 +1382,7 @@ public class Client extends JFrame implements MouseListener {
 			}//盤面状態に応じたアイコンを設定
 
 			// ボタンを配置する
-			int x = (i % row) * 45 + 240;
+			int x = (i % row) * 45 + 220;
 			int y = (int) 10 + (i / row)*45 + 30;
 			buttonArray[i].setBounds(x, y, 45, 45);//ボタンの大きさと位置を設定する．
 			buttonArray[i].addMouseListener(this);//マウス操作を認識できるようにする
@@ -1414,39 +1415,61 @@ public class Client extends JFrame implements MouseListener {
 		stop.setForeground(text);
 		stop.setBackground(button);
 		stop.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 24));
-		stop.setBounds(475,440,150,50);
+		stop.setBounds(610,45,170,35);
 		stop.setOpaque(true);
 		stop.setBorderPainted(false);
 		Board.add(stop);
 		stop.addActionListener(new ActionListener() { // 降参ボタンを押した時の処理
 			 public void actionPerformed(ActionEvent as) {
-				 
-				Board.removeAll();
-				userhome();
+				 Board.add(reallysurrender);
+				 Board.add(surrenderyes);
+				 Board.add(surrenderno);
+				 Board.repaint();
 			 }
 		});
 		
 		//本当に降参しますか？文
-		reallysurrender = new JLabel("really?");
+		reallysurrender = new JLabel("Really?");
+		reallysurrender.setForeground(text);
+		reallysurrender.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 24));
+		reallysurrender.setBounds(650,95,200,30);
 		
-		//降参Yes
+		//降参Yesボタン
 		surrenderyes = new JButton("Yes");
-		stop.setForeground(text);
-		stop.setBackground(button);
-		stop.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 24));
-		stop.setBounds(475,440,150,50);
-		stop.setOpaque(true);
-		stop.setBorderPainted(false);
+		surrenderyes.setForeground(text);
+		surrenderyes.setBackground(button);
+		surrenderyes.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 24));
+		surrenderyes.setBounds(600,140,90,30);
+		surrenderyes.setOpaque(true);
+		surrenderyes.setBorderPainted(false);
 		
 		
-		//降参No
+		//降参Noボタン
 		surrenderno = new JButton("No");
-		stop.setForeground(text);
-		stop.setBackground(button);
-		stop.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 24));
-		stop.setBounds(475,440,150,50);
-		stop.setOpaque(true);
-		stop.setBorderPainted(false);
+		surrenderno.setForeground(text);
+		surrenderno.setBackground(button);
+		surrenderno.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 24));
+		surrenderno.setBounds(700,140,90,30);
+		surrenderno.setOpaque(true);
+		surrenderno.setBorderPainted(false);
+		
+		surrenderyes.addActionListener(new ActionListener() { // 降参ボタンを押した時の処理
+			 public void actionPerformed(ActionEvent as) {
+				 Board.add(reallysurrender);
+				 Board.add(surrenderyes);
+				 Board.add(surrenderno);
+				 Board.repaint();
+			 }
+		});
+		
+		surrenderno.addActionListener(new ActionListener() { // 降参ボタンを押した時の処理
+			 public void actionPerformed(ActionEvent as) {
+				 Board.add(reallysurrender);
+				 Board.add(surrenderyes);
+				 Board.add(surrenderno);
+				 Board.repaint();
+			 }
+		});
 
 		//ゲーム終了ボタン
 				quitgame = new JButton("Game is over!");
@@ -1467,24 +1490,24 @@ public class Client extends JFrame implements MouseListener {
 				});
 
 		//手番表示
-		turnLabel = new JLabel(game.getTurn() + "の番です");
+		turnLabel = new JLabel(game.getTurn() + "'s turn");
 		turnLabel.setForeground(text);
 		turnLabel.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 24));
-		turnLabel.setBounds(10, row * 45 + 60, row * 45 + 10, 30);
+		turnLabel.setBounds(50, 320, 200, 30);
 		Board.add(turnLabel);
 
 		//自分の色表示
-		mycolorlabel = new JLabel("あなたは" + mycolor);
+		mycolorlabel = new JLabel("You are " + mycolor);
 		mycolorlabel.setForeground(text);
 		mycolorlabel.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 24));
-		mycolorlabel.setBounds(10, row * 45 + 110, row * 45 + 10, 30);
+		mycolorlabel.setBounds(50,360, 200, 30);
 		Board.add(mycolorlabel);
 		
 		//対戦相手名表示
 		opponentnamelabel = new JLabel("VS " + opponentnamestring);
 		opponentnamelabel.setForeground(text);
 		opponentnamelabel.setFont(new Font("ＭＳ ゴシック", Font.BOLD, 24));
-		opponentnamelabel.setBounds(10,50, 200, 30);
+		opponentnamelabel.setBounds(65,45, 200, 30);
 		Board.add(opponentnamelabel);
 
 		add(Board);
