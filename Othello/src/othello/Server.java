@@ -199,14 +199,13 @@ public class Server {
 
 						/*  申し込に対する答えなら  */
 						else if(inputLine.equals("Answer")) {
-							String ans = br.readLine(); /* 答えを受け取り、申し込み元に送信  */
+							String ans = br.readLine(); /* 答えを受け取り、申し込み元に送信  */	
 							String name = br.readLine();
-							String rate = br.readLine();
+							
 							if(ans.equals("Yes")) {
 								receiveThread[map.get(player).ThreadNo].sendMessage("Answer");
 								receiveThread[map.get(player).ThreadNo].sendMessage("Yes");
 								receiveThread[map.get(player).ThreadNo].sendMessage(name);
-								receiveThread[map.get(player).ThreadNo].sendMessage(rate);
 							//	game_online_list.remove(player);
 							//	game_online_list.remove(map.get(player));
 							}
@@ -228,11 +227,10 @@ public class Server {
 						/*  データ更新のリクエストなら  */
 						else if(inputLine.equals("dataUpdate")){
 
-								String user_name = br.readLine();
-								String result    = br.readLine();
-								String rate = br.readLine();
-								dataUpdate(user_name,result,rate);
-
+							String user_name = br.readLine();
+							String result    = br.readLine();
+							String rate = br.readLine();
+							dataUpdate(user_name,result,rate);
 						}
 					}
 				}
@@ -421,7 +419,6 @@ public class Server {
 
 	}
 
-	/*  データ更新  */
 	public void dataUpdate(String user_name, String result, String rate) {
 		Player player;
 		ObjectInputStream inObject;
@@ -433,7 +430,7 @@ public class Server {
             /*データ更新をするオブジェクトを探索*/
             while(true){
             	inObject = new ObjectInputStream(inFile);
-            	player = (Player)inObject.readObject(); /* オブジェクトを読み込む  */
+            	player = (Player)inObject.readObject(); /* ÉIÉuÉWÉFÉNÉgÇì«Ç›çûÇﬁ  */
 
             	if(player.getName().equals(user_name)){
             		if(result.equals("WIN")) {
